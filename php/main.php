@@ -17,9 +17,14 @@ $residentsManager -> readFile ("../00-data/03-residents.txt") ;
 $ownersManager = new OwnersManager ;
 $ownersManager -> readFile ("../00-data/02-owners.txt") ;
 
-$lotsManager      -> joinWithOwnersData ($ownersManager) ;
-$residentsManager -> joinWithLotsData ($lotsManager) ;
-$ownersManager    -> joinWithLotsData ($lotsManager) ;
+# $lotsManager      -> joinWithOwnersData ($ownersManager) ;
+
+$lotsManager      -> joinWithData ($ownersManager, "owner", "ownerData" ) ;
+$residentsManager -> joinWithData ($lotsManager  , "lot"  , "lotData"   ) ;
+$ownersManager    -> joinWithData ($lotsManager  , "owner", "lotData"   ) ;
+
+# $residentsManager -> joinWithLotsData ($lotsManager) ;
+# $ownersManager    -> joinWithLotsData ($lotsManager) ;
 
 $lotsManager -> calculateMilliemes () ;
 
@@ -44,6 +49,10 @@ if (isset($argc))
 		elseif ( $argv[1] === "owners1")
 			{
 			$ownersManager -> showOwners() ;
+			}	
+		elseif ( $argv[1] === "owners2")
+			{
+			$ownersManager -> showSortedBySyndicCode() ;
 			}	
 		elseif ( $argv[1] === "prices")
 			{

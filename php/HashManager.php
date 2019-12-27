@@ -91,7 +91,6 @@
 		$this->filteredObjects = $this->objects ;
 		$this->objectsCount = count ($this->objects) ;
 
-
 		return $this ;
 		}
 		
@@ -151,6 +150,26 @@
 		return $this ;	
 		}
 	
+	
+	public function joinWithData (HashManager &$hashManager, $primaryKey, $objectKey)
+		{
+		$objectsData = $hashManager -> getObjets () ;
+
+		foreach ($this->objects as $key => $item )
+			{
+			if ( array_key_exists($primaryKey,$item))
+				{
+				$joinKey =   $item[$primaryKey] ;
+				if ( ! empty($joinKey))
+					{
+					if ( array_key_exists($joinKey,$objectsData))
+						{
+						$this->objects[$key][$objectKey] = $objectsData[$joinKey] ;
+						}
+					}
+				}
+			}
+		}
 	
 	public function getCount ()
 		{
@@ -272,6 +291,10 @@
 		usort ($this->filteredObjects, 
 			function ($a,$b) use ($key0)
 				{
+				if ( ! array_key_exists($key0,$a) )
+					{ return -1 ; }
+				if ( ! array_key_exists($key0,$b) )
+					{ return 1 ; }
 				if ($a[$key0] < $b[$key0]) 
 					{ return -1 ; }
 				if ($a[$key0] == $b[$key0]) 
