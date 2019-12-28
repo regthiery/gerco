@@ -1,20 +1,20 @@
 <?php
 
 #=============================================================================
-	class FacturesManager extends HashManager
+	class FacturesController extends HashController
 #=============================================================================
 {
 	
 	public function __construct ()
 		{
-		echo "FacturesManager object created\n" ;
+		echo "FacturesController object created\n" ;
 		$this->setPrimaryKey("index") ;
 		}
 		
 	public function showFactures ()
 		{
-		$this -> unselect () ;
-		$this -> display ("index", "object", "value", "from", "date", "to", "info")
+		$this -> selectAll () ;
+		$this -> display ( "to", "date", "value", "object", "from", "imputationsArray", "info") ;
 		}	
 }		
 		

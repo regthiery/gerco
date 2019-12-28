@@ -1,13 +1,13 @@
 <?php
 
 #=============================================================================
-	class LotsManager extends HashManager
+	class LotsController extends HashController
 #=============================================================================
 {
 	
 	public function __construct ()
 		{
-		echo "LotsManager object created\n" ;
+		echo "LotsController object created\n" ;
 		$this->setPrimaryKey("lot") ;
 		}
 		

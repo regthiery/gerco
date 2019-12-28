@@ -1,7 +1,7 @@
 <?php
 
 #===============================================================================
-	class HashManager
+	class HashController
 #===============================================================================
 {
 	protected $filename ;
@@ -14,7 +14,7 @@
 	
 	public function __construct ()
 		{
-		echo "HashManager created\n" ;
+		echo "HashController created\n" ;
 		}
 	public function setPrimaryKey ($primaryKey)
 		{
@@ -42,12 +42,11 @@
 		
 		$primaryLabel = ucfirst($this->primaryKey) ;
 		
-		print ("HashManager readFile $filename \n") ;
+		print ("HashController readFile $filename $primaryLabel \n") ;
 
 		$this->setFileName ($filename) ;
 		$txt = file($this->filename) ;
-		
-		
+				
 		foreach ($txt as $line)
 			{
 			if (! preg_match ('/^#/', $line ) )
@@ -136,7 +135,7 @@
 				if ( is_array($value))
 					{
 					$values = implode (' ', $value) ;
-					printf (" : %s", $values) ;
+					printf ("  : %s", $values) ;
 					}
 				else
 					{
@@ -151,9 +150,9 @@
 		}
 	
 	
-	public function joinWithData (HashManager &$hashManager, $primaryKey, $objectKey)
+	public function joinWithData (HashController &$hashController, $primaryKey, $objectKey)
 		{
-		$objectsData = $hashManager -> getObjets () ;
+		$objectsData = $hashController -> getObjets () ;
 
 		foreach ($this->objects as $key => $item )
 			{

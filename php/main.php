@@ -18,7 +18,7 @@ $residentsController -> readFile ("../00-data/03-residents.txt") ;
 $ownersController = new OwnersController ;
 $ownersController -> readFile ("../00-data/02-owners.txt") ;
 
-$facturesController = new FacturesManager ;
+$facturesController = new FacturesController ;
 $facturesController -> readFile ("../00-data/01-factures.txt") ;
 
 
