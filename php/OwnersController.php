@@ -1,15 +1,15 @@
 <?php
 
-include_once "LotsManager.php" ;
+include_once "LotsController.php" ;
 
 #=============================================================================
-	class OwnersManager extends HashManager
+	class OwnersController extends HashController
 #=============================================================================
 {
 	
 	public function __construct ()
 		{
-		echo "OwnersManager object created\n" ;
+		echo "OwnersController object created\n" ;
 		$this->setPrimaryKey("owner") ;
 		}
 				

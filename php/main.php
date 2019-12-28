@@ -3,25 +3,30 @@
 <?php
 
 include_once "GlobalVariables.php" ;
-include_once "HashManager.php" ;
-include_once "LotsManager.php" ;
-include_once "ResidentsManager.php" ;
-include_once "OwnersManager.php" ;
+include_once "HashController.php" ;
+include_once "LotsController.php" ;
+include_once "ResidentsController.php" ;
+include_once "OwnersController.php" ;
+include_once "FacturesController.php" ;
 
-$lotsManager = new LotsManager ;
-$lotsManager -> readFile ("../00-data/00-lots.txt") ;
+$lotsController = new LotsController ;
+$lotsController -> readFile ("../00-data/00-lots.txt") ;
 
-$residentsManager = new ResidentsManager ;
-$residentsManager -> readFile ("../00-data/03-residents.txt") ;
+$residentsController = new ResidentsController ;
+$residentsController -> readFile ("../00-data/03-residents.txt") ;
 
-$ownersManager = new OwnersManager ;
-$ownersManager -> readFile ("../00-data/02-owners.txt") ;
+$ownersController = new OwnersController ;
+$ownersController -> readFile ("../00-data/02-owners.txt") ;
 
-$lotsManager      -> joinWithData ($ownersManager, "owner", "ownerData" ) ;
-$residentsManager -> joinWithData ($lotsManager  , "lot"  , "lotData"   ) ;
-$ownersManager    -> joinWithData ($lotsManager  , "owner", "lotData"   ) ;
+$facturesController = new FacturesManager ;
+$facturesController -> readFile ("../00-data/01-factures.txt") ;
 
-$lotsManager -> calculateMilliemes () ;
+
+$lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) ;
+$residentsController -> joinWithData ($lotsController  , "lot"  , "lotData"   ) ;
+$ownersController    -> joinWithData ($lotsController  , "owner", "lotData"   ) ;
+
+$lotsController -> calculateMilliemes () ;
 
 if (isset($argc))
 	{
@@ -35,44 +40,48 @@ if (isset($argc))
 		{
 		if ( $argv[1] === "owners")
 			{
-			$lotsManager -> showOwners("A") ;
-			$lotsManager -> showOwners("B") ;
-			$lotsManager -> showOwners("C") ;
-			$lotsManager -> showOwners("D") ;
-			$lotsManager -> showOwners("E") ;
+			$lotsController -> showOwners("A") ;
+			$lotsController -> showOwners("B") ;
+			$lotsController -> showOwners("C") ;
+			$lotsController -> showOwners("D") ;
+			$lotsController -> showOwners("E") ;
 			}
 		elseif ( $argv[1] === "owners1")
 			{
-			$ownersManager -> showOwners() ;
+			$ownersController -> showOwners() ;
 			}	
 		elseif ( $argv[1] === "owners2")
 			{
-			$ownersManager -> showSortedBySyndicCode() ;
+			$ownersController -> showSortedBySyndicCode() ;
 			}	
 		elseif ( $argv[1] === "prices")
 			{
-			$lotsManager -> showPrices () ;
+			$lotsController -> showPrices () ;
 			}
 		elseif ( $argv[1] === "residents")
 			{
-			$residentsManager -> show ("A") ;
-			$residentsManager -> show ("B") ;
-			$residentsManager -> show ("C") ;
-			$residentsManager -> show ("D") ;
-			$residentsManager -> show ("E") ;
+			$residentsController -> show ("A") ;
+			$residentsController -> show ("B") ;
+			$residentsController -> show ("C") ;
+			$residentsController -> show ("D") ;
+			$residentsController -> show ("E") ;
 			}
 		elseif ( $argv[1] === "milliemes")
 			{
-			$lotsManager -> checkGeneralMilliemes () ;
-			$lotsManager -> checkMilliemes () ;
+			$lotsController -> checkGeneralMilliemes () ;
+			$lotsController -> checkMilliemes () ;
 			}
 		elseif ( $argv[1] === "handicap")
 			{
-			$lotsManager -> showGarageHandicap () ;
+			$lotsController -> showGarageHandicap () ;
 			}
 		elseif ( $argv[1] === "parkings")
 			{
-			$lotsManager -> showParkings () ;
+			$lotsController -> showParkings () ;
+			}
+		elseif ( $argv[1] === "factures" )	
+			{
+			$facturesController -> showFactures () ;
 			}
 		}
 		

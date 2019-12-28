@@ -1,15 +1,15 @@
 <?php
 
-include_once "LotsManager.php" ;
+include_once "LotsController.php" ;
 
 #=============================================================================
-	class ResidentsManager extends HashManager
+	class ResidentsController extends HashController
 #=============================================================================
 {
 	
 	public function __construct ()
 		{
-		echo "ResidentsManager object created\n" ;
+		echo "ResidentsController object created\n" ;
 		$this->setPrimaryKey("lot") ;
 		}
 		

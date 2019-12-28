@@ -168,35 +168,4 @@
 	      $this->sortNumeric ("lot") ;
 		$this->display("batiment","type","prix","prixm2","owner","floor","situation","general","cgeneral","ownerData:lastname") ;
 		}	
-		
-		
-		
-	public function joinWithOwnersData (OwnersManager &$ownersManager)	
-		{
-		$ownersData = $ownersManager -> getObjets () ;
-
-		foreach ($this->objects as $key => $item )
-			{
-			if ( array_key_exists("owner",$item))
-				{
-				$owner =   $item["owner"] ;
-				if ( ! empty($owner))
-					{
-					if ( array_key_exists($owner,$ownersData))
-						{
-						$this->objects[$key]["ownerData"] = $ownersData[$owner] ;
-						}
-					}
-				}
-			/*
-			$lot = $item["lot"] ;
-			if ( array_key_exists($lot,$ownersData))
-				{
-				$this->objects[$lot]["ownerData"] = $ownersData[$lot] ;
-				}
-			*/	
-			}
-		}
-		
-		             
 }	
