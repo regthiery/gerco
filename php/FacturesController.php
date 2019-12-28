@@ -14,7 +14,15 @@
 	public function showFactures ()
 		{
 		$this -> selectAll () ;
-		$this -> display ( "to", "date", "value", "object", "from", "imputationsArray", "info") ;
-		}	
+		$this -> display ( "to", "date", "value", "from", "object", "imputationsArray", "info") ;
+		}
+		
+	public function showElectriciteBatiment ()
+		{
+		$this -> selectAll () ;
+		$this -> selectByKeyExt ("and", "to", "/A/") ;
+		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
+		$this -> display ( "to", "date", "value", "from", "object", "imputationsArray", "info") ;
+		}			
 }		
 		

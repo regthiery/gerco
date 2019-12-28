@@ -256,6 +256,56 @@
 		$this->filteredCount = count($this->filteredObjects)	;
 		return $this ;
 		}
+
+	public function selectByKeyExt ($operator, $key0, $pattern)
+		{
+		$array = array_filter (
+			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
+			function ($item) use($key0, $pattern)
+				{
+				
+				
+				$keys1 = preg_split("/:/",$key0) ;
+				$n = count($keys1) ;
+				if ( $n == 1 )
+					{
+					$key00 = $keys1 [0] ;
+					if ( ! (array_key_exists($key0,$item)) )
+						{
+						return false ;
+						}
+					$value = $item[$key0] ;
+					}
+				elseif ( $n == 2 )	
+					{
+					$key00 = $keys1 [0] ;
+					$key01 = $keys1 [1] ;
+					if (! array_key_exists($key00,$item) )
+						{
+						return false ;
+						}
+					if (! array_key_exists($key01,$item[$key00]) )
+						{
+						return false ;
+						}
+					$value = $item[$key00][$key01] ;
+					}
+
+				return ( preg_match($pattern,$value) ) ;
+				} 
+			) ;
+		if (!strcmp ($operator,"or"))	
+			{
+			$this->filteredObjects = array_merge ($this->filteredObjects, $array) ;
+			}
+		else
+			{
+			$this->filteredObjects = $array ;
+			}
+			
+		$this->filteredCount = count($this->filteredObjects)	;
+		return $this ;
+		}
 		
 	public function selectDefinedKey ($operator, $key0)	
 		{

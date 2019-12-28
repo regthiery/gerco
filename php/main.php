@@ -83,6 +83,10 @@ if (isset($argc))
 			{
 			$facturesController -> showFactures () ;
 			}
+		elseif ( $argv[1] === "factures1" )	
+			{
+			$facturesController -> showElectriciteBatiment () ;
+			}
 		}
 		
 	echo "\n" ;
