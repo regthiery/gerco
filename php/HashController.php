@@ -73,6 +73,15 @@
 						$valuesArray = explode (' ', $value ) ;
 						$object[$key] = $valuesArray ;
 						}
+					elseif ( preg_match ("/(.*)Date/", $line, $matches))
+						{
+						$key = $matches[1]."Date" ;
+						$key = lcfirst ($key) ;
+						$object[$key] = $value ;
+						@list ($day,$month,$year) = explode ('/', $value) ;
+						$date0 =  @date ('Y-m-d', mktime(0,0,0,$month,$day,$year)) ;
+						$object["$key"."Eng"] = $date0 ;
+						}
 					else
 						{
 						$key = lcfirst ($key) ;
@@ -263,8 +272,6 @@
 			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
 			function ($item) use($key0, $pattern)
 				{
-				
-				
 				$keys1 = preg_split("/:/",$key0) ;
 				$n = count($keys1) ;
 				if ( $n == 1 )
@@ -352,6 +359,30 @@
 				}
 			) ;
 		return $this ;
+		}
+		
+	public function sortByDate ($key0)	
+		{
+		print ("Sort by date\n") ;
+		$key = $key0."Eng" ;
+		usort ($this->filteredObjects,
+			function($a,$b) use ($key)
+				{
+				if ( ! array_key_exists($key,$a) )
+					{ return -1 ; }
+				if ( ! array_key_exists($key,$b) )
+					{ return 1 ; }
+				$ta = strtotime($a[$key]) ;
+				$tb = strtotime($b[$key]) ;
+				if ( $ta < $tb )
+					return 1 ;
+				else if ( $ta > $tb )	
+					return -1 ;
+				else
+					return 0 ;	
+				}
+			) ;
+		return $this ;	
 		}
 		
 	public function sumKeys (...$keys)

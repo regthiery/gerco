@@ -22,6 +22,7 @@
 		$this -> selectAll () ;
 		$this -> selectByKeyExt ("and", "to", "/A/") ;
 		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
+		$this -> sortByDate ("date") ;
 		$this -> display ( "to", "date", "value", "from", "object", "imputationsArray", "info") ;
 		}			
 }		

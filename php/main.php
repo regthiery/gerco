@@ -9,6 +9,8 @@ include_once "ResidentsController.php" ;
 include_once "OwnersController.php" ;
 include_once "FacturesController.php" ;
 
+setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
+
 $lotsController = new LotsController ;
 $lotsController -> readFile ("../00-data/00-lots.txt") ;
 
