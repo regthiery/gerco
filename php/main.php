@@ -85,9 +85,18 @@ if (isset($argc))
 			{
 			$facturesController -> showFactures () ;
 			}
-		elseif ( $argv[1] === "factures1" )	
+		elseif ( $argv[1] === "electricité" )	
 			{
-			$facturesController -> showElectriciteBatiment () ;
+			$facturesController -> showElectriciteBatiment ("A") ;
+			}
+		elseif ( $argv[1] === "ascenseur" )	
+			{
+			$facturesController -> calculateImputations () ;
+
+			$facturesController -> showAscenseurBatiment ("A") ;
+			$facturesController -> showAscenseurBatiment ("B") ;
+			$facturesController -> showAscenseurBatiment ("C") ;
+			$facturesController -> showAscenseurBatiment ("D") ;
 			}
 		}
 		

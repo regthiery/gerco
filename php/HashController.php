@@ -143,8 +143,8 @@
 
 				if ( is_array($value))
 					{
-					$values = implode (' ', $value) ;
-					printf ("  : %s", $values) ;
+					$values = implode ("    ", $value) ;
+					printf ("  : %s    ", $values) ;
 					}
 				else
 					{
@@ -407,8 +407,13 @@
 		{
 		foreach ($keys as $key0)
 			{
-			printf ("Sum %s : %8f \n", $key0, $this->sums[$key0]) ;
+			printf ("Sum %s : %8.2f \n", $key0, $this->sums[$key0]) ;
 			}
 		return $this ;	
 		}
+		
+	public function getSum($key0)
+		{
+		return $this->sums[$key0] ;
+		}	
 }	
