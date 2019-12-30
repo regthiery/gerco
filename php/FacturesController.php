@@ -22,8 +22,11 @@
 					{
 					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
 						{
-						if ( preg_match ("/(.*)%/", $matches[2], $percents ))
+						if ( preg_match ("/(.*)\%/", $matches[2], $percents ))
 							{
+							$value = $facture["value"] ;
+							$percent = $percents[1] ;
+							$this->objects[$key][$matches[1]] = $value * $percent / 100.0 ;
 							}
 						else
 							{
@@ -47,8 +50,30 @@
 		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
 		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "from", "object", "imputations", "info") ;
+		$this -> display ( "to", "date", "value", "special$batiment", "from", "object", "imputations", "info") ;
+
+
+		$this -> sumKeys ("value", "special$batiment") ;
+		$this -> displaySums ("value", "special$batiment") ;
+		$sum = $this -> getSum("special$batiment") ;
+		return ($sum) ;
 		}			
+
+	public function showElectriciteGarage ($garage)
+		{
+		$this -> selectAll () ;
+		$this -> selectByKeyExt ("and", "to", "/$garage/") ;
+		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
+		$this -> sortByDate ("date") ;
+		$this -> display ( "to", "date", "value", "garage$garage", "from", "object", "imputations", "info") ;
+
+
+		$this -> sumKeys ("value", "garage$garage") ;
+		$this -> displaySums ("value", "garage$garage") ;
+		$sum = $this -> getSum("garage$garage") ;
+		return ($sum) ;
+		}			
+
 
 	public function showAscenseurBatiment ($batiment)
 		{
