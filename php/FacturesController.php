@@ -15,24 +15,49 @@
 		{
 		foreach ( $this->objects as $key => $facture )
 			{
+			$sum = 0 ;
 			if ( array_key_exists ("imputations", $facture) )
 				{
 				$imputations = $facture["imputations"] ;
 				foreach ( $imputations as $key0 => $imputation )
 					{
+					$value = $facture["value"] ;
+
 					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
 						{
-						if ( preg_match ("/(.*)\%/", $matches[2], $percents ))
+						$imputationKey = $matches[1] ;
+						$imputationValue = $matches[2] ;
+						
+						if ( preg_match("/copro(.*)/", $imputationKey,$coproKey))
 							{
-							$value = $facture["value"] ;
+							if ( preg_match("/(.*)x(.*)/",$imputationValue,$imputationValues) )
+								{
+								$ncopro = $imputationValues [1] ;
+								$valueByCopro = $imputationValues [2] ;
+								$imputationValue = $ncopro * $valueByCopro ;
+								}
+							}
+						
+						if ( preg_match ("/(.*)\%/", $imputationValue, $percents ))
+							{
 							$percent = $percents[1] ;
-							$this->objects[$key][$matches[1]] = $value * $percent / 100.0 ;
+							$this->objects[$key][$imputationKey] = $value * $percent / 100.0 ;
 							}
 						else
 							{
-							$this->objects[$key][$matches[1]] = $matches[2] ;
+							$this->objects[$key][$imputationKey] = $imputationValue ;
 							}	
+						$sum += $this->objects[$key][$imputationKey] ;
 						}
+					}
+					
+				$res = abs ($facture["value"] - $sum) ;
+				if ( $res >1e-3 )	
+					{
+					$index = $this->objects[$key][$this->primaryKey] ;
+					print ("Erreur sur les imputations de la facture $index\n") ;
+					print ("Son montant de $value euros n'est pas la somme des imputations \n") ;
+					print_r ($imputations) ;
 					}
 				}
 			}
@@ -50,12 +75,14 @@
 		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
 		$this -> selectByKeyExt ("and", "object", "/Entretien/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "special$batiment", "escalier$batiment", "from", "imputations", "info") ;
+		$this -> display ( "to", "date", "value", "special$batiment", "escalier$batiment", "from", "info") ;
 
 		$this -> sumKeys ("value", "special$batiment", "escalier$batiment") ;
 		$this -> displaySums ("value", "special$batiment", "escalier$batiment") ;
 		$special = $this -> getSum("special$batiment") ;
 		$escalier = $this -> getSum("escalier$batiment") ;
+		$total = $special + $escalier ;
+		print ("Total entretien batiment $batiment : $total \n") ;
 		return array($special,$escalier) ;
 		}
 		

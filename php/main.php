@@ -112,6 +112,11 @@ if (isset($argc))
 			$facturesController -> calculateImputations () ;
 			
 			$facturesController -> showEntretienForBatiment ("A") ;
+			$facturesController -> showEntretienForBatiment ("B") ;
+			$facturesController -> showEntretienForBatiment ("C") ;
+			$facturesController -> showEntretienForBatiment ("D") ;
+			$facturesController -> showEntretienForBatiment ("E") ;
+			$facturesController -> showEntretienForBatiment ("Z") ;
 			}
 		}
 		
