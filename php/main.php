@@ -107,6 +107,12 @@ if (isset($argc))
 			$facturesController -> showAscenseurBatiment ("C") ;
 			$facturesController -> showAscenseurBatiment ("D") ;
 			}
+		elseif ( $argv[1] === "entretien" )	
+			{
+			$facturesController -> calculateImputations () ;
+			
+			$facturesController -> showEntretienForBatiment ("A") ;
+			}
 		}
 		
 	echo "\n" ;

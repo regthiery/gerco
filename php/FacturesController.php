@@ -44,6 +44,21 @@
 		$this -> display ( "to", "date", "value", "from", "object", "imputations", "info") ;
 		}
 		
+	public function showEntretienForBatiment($batiment)	
+		{
+		$this -> selectAll () ;
+		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
+		$this -> selectByKeyExt ("and", "object", "/Entretien/") ;
+		$this -> sortByDate ("date") ;
+		$this -> display ( "to", "date", "value", "special$batiment", "escalier$batiment", "from", "imputations", "info") ;
+
+		$this -> sumKeys ("value", "special$batiment", "escalier$batiment") ;
+		$this -> displaySums ("value", "special$batiment", "escalier$batiment") ;
+		$special = $this -> getSum("special$batiment") ;
+		$escalier = $this -> getSum("escalier$batiment") ;
+		return array($special,$escalier) ;
+		}
+		
 	public function showElectriciteBatiment ($batiment)
 		{
 		$this -> selectAll () ;
