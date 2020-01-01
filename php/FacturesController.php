@@ -4,6 +4,8 @@
 	class FacturesController extends HashController
 #=============================================================================
 {
+	protected $imputationKeys ;
+	
 	
 	public function __construct ()
 		{
@@ -61,7 +63,36 @@
 					}
 				}
 			}
-		}	
+		}
+		
+	public function calculateImputationKeysList ()		
+		{
+		$this->imputationKeys = array () ;
+		foreach ( $this->objects as $key => $facture )
+			{
+			if ( array_key_exists ("imputations", $facture) )
+				{
+				$imputations = $facture["imputations"] ;
+				foreach ( $imputations as $i => $imputation )
+					{
+					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
+						{
+						$imputationKey = $matches[1] ;
+						$imputationValue = $matches[2] ;
+						if ( array_key_exists ($imputationKey, $this->imputationKeys ) )
+							{
+							$this->imputationKeys [$imputationKey] ++ ;
+							}
+						else
+							{
+							$this->imputationKeys [$imputationKey] = 1 ;
+							}	
+						}
+					}
+				}
+			}
+		return $this->imputationKeys ;	
+		}
 		
 	public function showFactures ()
 		{

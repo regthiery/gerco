@@ -118,6 +118,12 @@ if (isset($argc))
 			$facturesController -> showEntretienForBatiment ("E") ;
 			$facturesController -> showEntretienForBatiment ("Z") ;
 			}
+			
+		elseif ( $argv[1] === "imputations" )	
+			{
+			$imputationKeys = $facturesController -> calculateImputationKeysList () ;
+			print_r ($imputationKeys) ;
+			}
 		}
 		
 	echo "\n" ;
