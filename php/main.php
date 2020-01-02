@@ -133,6 +133,10 @@ if (isset($argc))
 			{
 			$accountingPlanController -> display () ;
 			}
+		elseif ( $argv[1] === "checkInvoices")	
+			{
+			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
+			}
 		}
 		
 	echo "\n" ;

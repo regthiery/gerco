@@ -5,6 +5,7 @@
 #=============================================================================
 {
 	protected $imputationKeys ;
+	protected $accountingPlanController ;
 	
 	
 	public function __construct ()
@@ -163,6 +164,25 @@
 		$sum = $this -> getSum("ascenseur$batiment") ;
 		return ($sum) ;
 		}			
+
+	public function checkWithAccountingPlan (AccountingPlanController &$accountingPlanController)
+		{
+		$this->accountingPlanController = $accountingPlanController ;
+		$this->selectAll () ;
+		$this->sortByDate('date') ;
+		$invoicesCount = $this->filteredCount ;
+		$invoiceIndex = $invoicesCount ;
+		foreach ($this->filteredObjects as $key => $invoice)
+			{
+			$invoiceShortName = $invoice["object"] ;
+			$date = $invoice["date"] ;
+			$accountIndex = $this->accountingPlanController -> getAccountIndex ($invoiceShortName) ;
+			$from = $invoice["from"] ;
+			$accountCode = $this->accountingPlanController -> getAccountCode ($accountIndex) ;
+			printf ("%12s \t %6d \t %10s \t %-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
+			$invoiceIndex -- ;
+			}
+		}
 
 }		
 		

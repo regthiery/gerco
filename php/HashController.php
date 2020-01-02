@@ -11,6 +11,7 @@
 	protected $filteredCount ;
 	protected $primaryKey ;
 	protected $sums ;
+	protected $objectsKeys ;
 	
 	public function __construct ()
 		{
@@ -98,6 +99,8 @@
 
 		$this->filteredObjects = $this->objects ;
 		$this->objectsCount = count ($this->objects) ;
+
+		$this->objectsKeys = array_keys($this->objects) ;
 
 		return $this ;
 		}

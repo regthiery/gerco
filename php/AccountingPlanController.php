@@ -21,4 +21,18 @@
 			print ("$key : $label\n") ;
 			}
 		}
+	
+	public function getAccountIndex ($shortName)
+		{
+		$array = array_column($this->objects, 'shortname') ;
+		$index = array_search ($shortName, array_column($this->objects, 'shortname') ) ;
+		return $index ;
+		}
+		
+	public function getAccountCode ($index)	
+		{
+		$key = $this->objectsKeys [$index] ;
+		$account = $this->objects[$key] ;
+		return $account["code"] ;
+		}
 }
