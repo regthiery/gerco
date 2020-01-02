@@ -98,7 +98,7 @@
 	public function showFactures ()
 		{
 		$this -> selectAll () ;
-		$this -> display ( "to", "date", "value", "from", "object", "imputations", "info") ;
+		$this -> displayData ( "to", "date", "value", "from", "object", "imputations", "info") ;
 		}
 		
 	public function showEntretienForBatiment($batiment)	
@@ -107,7 +107,7 @@
 		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
 		$this -> selectByKeyExt ("and", "object", "/Entretien/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "special$batiment", "escalier$batiment", "from", "info") ;
+		$this -> displayData ( "to", "date", "value", "special$batiment", "escalier$batiment", "from", "info") ;
 
 		$this -> sumKeys ("value", "special$batiment", "escalier$batiment") ;
 		$this -> displaySums ("value", "special$batiment", "escalier$batiment") ;
@@ -124,7 +124,7 @@
 		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
 		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "special$batiment", "from", "object", "imputations", "info") ;
+		$this -> displayData ( "to", "date", "value", "special$batiment", "from", "object", "imputations", "info") ;
 
 
 		$this -> sumKeys ("value", "special$batiment") ;
@@ -139,7 +139,7 @@
 		$this -> selectByKeyExt ("and", "to", "/$garage/") ;
 		$this -> selectByKeyExt ("and", "object", "/Electricité/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "garage$garage", "from", "object", "imputations", "info") ;
+		$this -> displayData ( "to", "date", "value", "garage$garage", "from", "object", "imputations", "info") ;
 
 
 		$this -> sumKeys ("value", "garage$garage") ;
@@ -155,7 +155,7 @@
 		$this -> selectByKeyExt ("and", "to", "/$batiment/") ;
 		$this -> selectByKeyExt ("and", "object", "/Ascenseur/") ;
 		$this -> sortByDate ("date") ;
-		$this -> display ( "to", "date", "value", "ascenseur$batiment", "from", "object", "imputations", "info" ) ;
+		$this -> displayData ( "to", "date", "value", "ascenseur$batiment", "from", "object", "imputations", "info" ) ;
 
 
 		$this -> sumKeys ("value", "ascenseur$batiment") ;
