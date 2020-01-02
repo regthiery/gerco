@@ -102,7 +102,7 @@
 		return $this ;
 		}
 		
-	public function display (...$keys)
+	public function displayData (...$keys)
 		{
 		$i = 1 ;
 		$primaryLabel = ucfirst ($this->primaryKey) ;

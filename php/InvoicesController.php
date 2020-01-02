@@ -1,7 +1,7 @@
 <?php
 
 #=============================================================================
-	class FacturesController extends HashController
+	class InvoicesController extends HashController
 #=============================================================================
 {
 	protected $imputationKeys ;
@@ -9,7 +9,7 @@
 	
 	public function __construct ()
 		{
-		echo "FacturesController object created\n" ;
+		echo "InvoicesController object created\n" ;
 		$this->setPrimaryKey("index") ;
 		}
 		
@@ -91,6 +91,7 @@
 					}
 				}
 			}
+		ksort ($this->imputationKeys)	;
 		return $this->imputationKeys ;	
 		}
 		

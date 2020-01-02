@@ -7,7 +7,8 @@ include_once "HashController.php" ;
 include_once "LotsController.php" ;
 include_once "ResidentsController.php" ;
 include_once "OwnersController.php" ;
-include_once "FacturesController.php" ;
+include_once "InvoicesController.php" ;
+include_once "AccountingPlanController.php" ;
 
 setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
 
@@ -20,8 +21,11 @@ $residentsController -> readFile ("../00-data/03-residents.txt") ;
 $ownersController = new OwnersController ;
 $ownersController -> readFile ("../00-data/02-owners.txt") ;
 
-$facturesController = new FacturesController ;
-$facturesController -> readFile ("../00-data/01-factures.txt") ;
+$invoicesController = new InvoicesController ;
+$invoicesController -> readFile ("../00-data/01-factures.txt") ;
+
+$accountingPlanController = new AccountingPlanController ;
+$accountingPlanController -> readFile ("../00-data/04-accountingPlan.txt") ;
 
 
 $lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) ;
@@ -83,46 +87,51 @@ if (isset($argc))
 			}
 		elseif ( $argv[1] === "factures" )	
 			{
-			$facturesController -> showFactures () ;
+			$invoicesController -> showFactures () ;
 			}
 		elseif ( $argv[1] === "electricité" )	
 			{
-			$facturesController -> calculateImputations () ;
+			$invoicesController -> calculateImputations () ;
 
-			$facturesController -> showElectriciteBatiment ("A") ;
-			$facturesController -> showElectriciteBatiment ("B") ;
-			$facturesController -> showElectriciteBatiment ("C") ;
-			$facturesController -> showElectriciteBatiment ("D") ;
-			$facturesController -> showElectriciteBatiment ("E") ;
+			$invoicesController -> showElectriciteBatiment ("A") ;
+			$invoicesController -> showElectriciteBatiment ("B") ;
+			$invoicesController -> showElectriciteBatiment ("C") ;
+			$invoicesController -> showElectriciteBatiment ("D") ;
+			$invoicesController -> showElectriciteBatiment ("E") ;
 
-			$facturesController -> showElectriciteGarage ("1011") ;
-			$facturesController -> showElectriciteGarage ("1314") ;
+			$invoicesController -> showElectriciteGarage ("1011") ;
+			$invoicesController -> showElectriciteGarage ("1314") ;
 			}
 		elseif ( $argv[1] === "ascenseur" )	
 			{
-			$facturesController -> calculateImputations () ;
+			$invoicesController -> calculateImputations () ;
 
-			$facturesController -> showAscenseurBatiment ("A") ;
-			$facturesController -> showAscenseurBatiment ("B") ;
-			$facturesController -> showAscenseurBatiment ("C") ;
-			$facturesController -> showAscenseurBatiment ("D") ;
+			$invoicesController -> showAscenseurBatiment ("A") ;
+			$invoicesController -> showAscenseurBatiment ("B") ;
+			$invoicesController -> showAscenseurBatiment ("C") ;
+			$invoicesController -> showAscenseurBatiment ("D") ;
 			}
 		elseif ( $argv[1] === "entretien" )	
 			{
-			$facturesController -> calculateImputations () ;
+			$invoicesController -> calculateImputations () ;
 			
-			$facturesController -> showEntretienForBatiment ("A") ;
-			$facturesController -> showEntretienForBatiment ("B") ;
-			$facturesController -> showEntretienForBatiment ("C") ;
-			$facturesController -> showEntretienForBatiment ("D") ;
-			$facturesController -> showEntretienForBatiment ("E") ;
-			$facturesController -> showEntretienForBatiment ("Z") ;
+			$invoicesController -> showEntretienForBatiment ("A") ;
+			$invoicesController -> showEntretienForBatiment ("B") ;
+			$invoicesController -> showEntretienForBatiment ("C") ;
+			$invoicesController -> showEntretienForBatiment ("D") ;
+			$invoicesController -> showEntretienForBatiment ("E") ;
+			$invoicesController -> showEntretienForBatiment ("Z") ;
 			}
 			
 		elseif ( $argv[1] === "imputations" )	
 			{
-			$imputationKeys = $facturesController -> calculateImputationKeysList () ;
+			$imputationKeys = $invoicesController -> calculateImputationKeysList () ;
 			print_r ($imputationKeys) ;
+			}
+			
+		elseif ( $argv[1] === "planComptable")	
+			{
+			$accountingPlanController -> display () ;
 			}
 		}
 		

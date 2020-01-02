@@ -20,7 +20,7 @@
 	            $this->selectByKey ("or", "batiment", "Z") ;
 	            $this->sumKeys ("general", "special$bat", "specialAscenseur$bat", "specialEscalier$bat") ;
 	            $this->sortNumeric ("lot") ;
-	            $this->display ("batiment","type","general","special$bat","specialAscenseur$bat","specialEscalier$bat","numeros","ownerData:lastname") ;
+	            $this->displayData ("batiment","type","general","special$bat","specialAscenseur$bat","specialEscalier$bat","numeros","ownerData:lastname") ;
       	      $this->displayFilteredCount () ;
 	            $this->displaySums ("general", "special$bat", "specialAscenseur$bat", "specialEscalier$bat") ;
             	}
@@ -30,7 +30,7 @@
             	$this->selectByKey ("or", "batiment", "X") ;
 	            $this->sumKeys ("general", "special$bat", "specialAscenseur$bat", "specialEscalier$bat", "specialExt") ;
 	            $this->sortNumeric ("lot") ;
-	            $this->display ("batiment","type","general","special$bat","specialAscenseur$bat","specialEscalier$bat","specialExt", "numeros","ownerData:lastname") ;
+	            $this->displayData ("batiment","type","general","special$bat","specialAscenseur$bat","specialEscalier$bat","specialExt", "numeros","ownerData:lastname") ;
 		      $this->displayFilteredCount () ;
 	            $this->displaySums ("general", "special$bat", "specialAscenseur$bat", "specialEscalier$bat", "specialExt") ;
             	}
@@ -39,7 +39,7 @@
 	            $this->selectByKey ("or", "batiment", $bat) ;
 	            $this->sumKeys ("general",  "specialZ") ;
 	            $this->sortNumeric ("lot") ;
-	            $this->display ("batiment","type","general","specialZ", "double", "handicap", "numeros","ownerData:lastname") ;
+	            $this->displayData ("batiment","type","general","specialZ", "double", "handicap", "numeros","ownerData:lastname") ;
 		      $this->displayFilteredCount () ;
 	            $this->displaySums ("general", "specialZ") ;
             	}
@@ -50,7 +50,7 @@
 	            $this->selectByKey ("or", "batiment", "X") ;
 	            $this->sumKeys ("general",  "specialExt") ;
 	            $this->sortNumeric ("lot") ;
-	            $this->display ("batiment","type","specialExt", "numeros","ownerData:lastname") ;
+	            $this->displayData ("batiment","type","specialExt", "numeros","ownerData:lastname") ;
 	            $this->displaySums ("general",  "specialExt") ;
             	}
 		}
@@ -60,7 +60,7 @@
 		$this->selectAll () ;
 		$this->sumKeys("general") ;
 		$this->sortNumeric("lot") ;
-		$this->display("lot","batiment","type","general","ownerData:lastname") ;
+		$this->displayData("lot","batiment","type","general","ownerData:lastname") ;
 		$this->displaySums("general") ;
 		}	
 
@@ -83,7 +83,7 @@
 		$this->selectByKey("or","batiment","X") ;
 		$this->selectByKey("and","handicap","1") ;
 	      $this->sortNumeric ("lot") ;
-		$this->display("batiment","type","handicap","ownerData:lastname") ;
+		$this->displayData("batiment","type","handicap","ownerData:lastname") ;
 		$this->displayFilteredCount () ;
 		}
 		
@@ -105,7 +105,7 @@
 		$this->selectByKey("or","batiment","X") ;
 		$this->selectByKey("and","with",$bat) ;
 	      $this->sortNumeric ("lot") ;
-		$this->display("batiment","type","with","situation","ownerData:lastname") ;
+		$this->displayData("batiment","type","with","situation","ownerData:lastname") ;
 		$this->displayFilteredCount () ;
 		}	
 
@@ -166,6 +166,6 @@
 		$this->filteredObjects = $array ;	
 		
 	      $this->sortNumeric ("lot") ;
-		$this->display("batiment","type","prix","prixm2","owner","floor","situation","general","cgeneral","ownerData:lastname") ;
+		$this->displayData("batiment","type","prix","prixm2","owner","floor","situation","general","cgeneral","ownerData:lastname") ;
 		}	
 }	
