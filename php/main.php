@@ -9,6 +9,7 @@ include_once "ResidentsController.php" ;
 include_once "OwnersController.php" ;
 include_once "InvoicesController.php" ;
 include_once "AccountingPlanController.php" ;
+include_once "ImputationsController.php" ;
 
 setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
 
@@ -27,12 +28,16 @@ $invoicesController -> readFile ("../00-data/01-factures.txt") ;
 $accountingPlanController = new AccountingPlanController ;
 $accountingPlanController -> readFile ("../00-data/04-accountingPlan.txt") ;
 
+$imputationsController = new ImputationsController ;
+$imputationsController -> readFile ("../00-data/05-imputations.txt") ;
+
 
 $lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) ;
 $residentsController -> joinWithData ($lotsController  , "lot"  , "lotData"   ) ;
 $ownersController    -> joinWithData ($lotsController  , "owner", "lotData"   ) ;
 
 $lotsController -> calculateMilliemes () ;
+$imputationsController -> setInvoicesController ($invoicesController) ;
 
 if (isset($argc))
 	{
@@ -136,6 +141,11 @@ if (isset($argc))
 		elseif ( $argv[1] === "checkInvoices")	
 			{
 			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
+			}
+		elseif ( $argv[1] === "accountStatement")	
+			{
+			$invoicesController -> calculateImputations () ;
+			$imputationsController -> makeAccountStatement () ;
 			}
 		}
 		

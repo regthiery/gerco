@@ -22,7 +22,7 @@
 		$this->primaryKey = $primaryKey ;
 		}	
 	
-	public function getObjets ()
+	public function getObjects ()
 		{
 		return $this->objects ;
 		}	
@@ -164,7 +164,7 @@
 	
 	public function joinWithData (HashController &$hashController, $primaryKey, $objectKey)
 		{
-		$objectsData = $hashController -> getObjets () ;
+		$objectsData = $hashController -> getObjects () ;
 
 		foreach ($this->objects as $key => $item )
 			{
