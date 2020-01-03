@@ -24,19 +24,29 @@
 			printf ("%10s \t %-30s\n", $imputation["code"], $imputation["label"]) ;
 			
 			$this->objects[$imputationKey]["invoices"] = array () ;
+
+
 			
 			foreach ($this->invoicesController->getObjects() as $invoiceKey => $invoice )
 				{
-				if ( array_key_exists ($imputationKey, $invoice) )
+				if ( ! array_key_exists ("calculatedImputations", $invoice))
 					{
-					$imputationValue = $invoice [$imputationKey] ;
+					print ("Error : the imputations have not been calculated for invoice $invoiceKey\n") ;
+					return ;
+					}
+				$imputations = $invoice["calculatedImputations"] ;
+				if ( array_key_exists ($imputationKey, $imputations) )
+					{
+					$imputationValue = $imputations [$imputationKey] ;
 					$this->objects[$imputationKey]["invoices"][$invoiceKey] =  $imputationValue  ;
-					print ("\t$invoiceKey $imputationValue \n") ;
+					$accountCode = $invoice["accountCode"] ;
+					printf ("\t%-10s \t % 10.2f\t %8d\n", $invoiceKey, $imputationValue, $accountCode) ;
 					}
 
 				}
+				
 			}
-		print_r ($this->objects) ;
+		//print_r ($this->objects) ;
 		}	
 	
 }

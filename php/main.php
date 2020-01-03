@@ -145,6 +145,7 @@ if (isset($argc))
 		elseif ( $argv[1] === "accountStatement")	
 			{
 			$invoicesController -> calculateImputations () ;
+			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
 			$imputationsController -> makeAccountStatement () ;
 			}
 		}

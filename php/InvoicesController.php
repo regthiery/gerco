@@ -16,15 +16,16 @@
 		
 	public function calculateImputations ()
 		{
-		foreach ( $this->objects as $key => $facture )
+		foreach ( $this->objects as $key => $invoice )
 			{
 			$sum = 0 ;
-			if ( array_key_exists ("imputations", $facture) )
+			if ( array_key_exists ("imputations", $invoice) )
 				{
-				$imputations = $facture["imputations"] ;
+				$imputations = $invoice["imputations"] ;
+				$this->objects[$key]["calculatedImputations"] = array () ;
 				foreach ( $imputations as $key0 => $imputation )
 					{
-					$value = $facture["value"] ;
+					$value = $invoice["value"] ;
 
 					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
 						{
@@ -44,17 +45,20 @@
 						if ( preg_match ("/(.*)\%/", $imputationValue, $percents ))
 							{
 							$percent = $percents[1] ;
-							$this->objects[$key][$imputationKey] = $value * $percent / 100.0 ;
+							// $this->objects[$key][$imputationKey] = $value * $percent / 100.0 ;
+							$this->objects[$key]["calculatedImputations"][$imputationKey] = $value * $percent / 100.0 ;
 							}
 						else
 							{
-							$this->objects[$key][$imputationKey] = $imputationValue ;
+							// $this->objects[$key][$imputationKey] = $imputationValue ;
+							$this->objects[$key]["calculatedImputations"][$imputationKey] = $imputationValue ;
 							}	
-						$sum += $this->objects[$key][$imputationKey] ;
+						// $sum += $this->objects[$key][$imputationKey] ;
+						$sum += $this->objects[$key]["calculatedImputations"][$imputationKey] ;
 						}
 					}
 					
-				$res = abs ($facture["value"] - $sum) ;
+				$res = abs ($invoice["value"] - $sum) ;
 				if ( $res >1e-3 )	
 					{
 					$index = $this->objects[$key][$this->primaryKey] ;
@@ -63,17 +67,21 @@
 					print_r ($imputations) ;
 					}
 				}
+			else
+				{
+				print ("Error: no imputation defined for invoice $key !\n") ;
+				}	
 			}
 		}
 		
 	public function calculateImputationKeysList ()		
 		{
 		$this->imputationKeys = array () ;
-		foreach ( $this->objects as $key => $facture )
+		foreach ( $this->objects as $key => $invoice )
 			{
-			if ( array_key_exists ("imputations", $facture) )
+			if ( array_key_exists ("imputations", $invoice) )
 				{
-				$imputations = $facture["imputations"] ;
+				$imputations = $invoice["imputations"] ;
 				foreach ( $imputations as $i => $imputation )
 					{
 					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
@@ -174,14 +182,24 @@
 		$invoiceIndex = $invoicesCount ;
 		foreach ($this->filteredObjects as $key => $invoice)
 			{
+			$invoiceKey = $invoice["index"] ;
 			$invoiceShortName = $invoice["object"] ;
 			$date = $invoice["date"] ;
 			$accountIndex = $this->accountingPlanController -> getAccountIndex ($invoiceShortName) ;
 			$from = $invoice["from"] ;
-			$accountCode = $this->accountingPlanController -> getAccountCode ($accountIndex) ;
+
+			$accountCode  = $this->accountingPlanController -> getAccountCode  ($accountIndex) ;
+			$accountLabel = $this->accountingPlanController -> getAccountLabel ($accountIndex) ;
+			
+			
+			$this->objects[$invoiceKey]["accountCode"]  = $accountCode ;
+			$this->objects[$invoiceKey]["accountLabel"] = $accountLabel ;
+			$this->objects[$invoiceKey]["invoiceIndex"] = $invoiceIndex ;
+			
 			printf ("%12s \t %6d \t %10s \t %-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
 			$invoiceIndex -- ;
 			}
+		# print_r ($this->objects) ;
 		}
 
 }		

@@ -35,4 +35,10 @@
 		$account = $this->objects[$key] ;
 		return $account["code"] ;
 		}
+	public function getAccountLabel ($index)	
+		{
+		$key = $this->objectsKeys [$index] ;
+		$account = $this->objects[$key] ;
+		return $account["label"] ;
+		}
 }

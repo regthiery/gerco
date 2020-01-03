@@ -71,6 +71,7 @@
 						{
 						$key = $matches[1] ;
 						$key = lcfirst ($key) ;
+						$value=preg_replace ('/\s\s+/', ' ', $value) ;
 						$valuesArray = explode (' ', $value ) ;
 						$object[$key] = $valuesArray ;
 						}
