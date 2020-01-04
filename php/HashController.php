@@ -30,6 +30,11 @@
 		{
 		return $this->filteredObjects ;
 		}	
+		
+	public function getObjectWithKey ($key)	
+		{
+		return $this->objects[$key] ;
+		}
 	
 	public function setFileName ($filename)	
 		{

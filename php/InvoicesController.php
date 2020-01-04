@@ -196,11 +196,40 @@
 			$this->objects[$invoiceKey]["accountLabel"] = $accountLabel ;
 			$this->objects[$invoiceKey]["invoiceIndex"] = $invoiceIndex ;
 			
-			printf ("%12s \t %6d \t %10s \t %-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
+			// printf ("%12s \t %6d \t %10s \t %-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
 			$invoiceIndex -- ;
 			}
 		# print_r ($this->objects) ;
 		}
-
+		
+	public function getInvoiceKeyWithIndex ($index)	
+		{
+		foreach ($this->objects as $key => $data)
+			{
+			if ( $data['invoiceIndex'] == $index )
+				{
+				return $data['index'] ;
+				}
+			}
+		return null ;	
+		}
+		
+	public function displayInvoicesList ()
+		{
+		$invoicesCount = $this->objectsCount ;
+		
+		print_r ($this->objects) ;
+		for ( $i=0 ; $i < $invoicesCount ; $i ++ )
+			{
+			$invoiceIndex = $i + 1 ;
+			$invoiceKey = $this->getInvoiceKeyWithIndex ($invoiceIndex) ;
+			$invoice = $this->objects[$invoiceKey] ;
+			$date = $invoice["date"] ;
+			$accountCode = $invoice['accountCode'] ;
+			$from = $invoice['from'] ;
+			$invoiceShortName = $invoice["object"] ;
+			printf ("%12s\t%6d\t%10s\t%-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
+			}
+		}	
 }		
 		

@@ -38,6 +38,7 @@ $ownersController    -> joinWithData ($lotsController  , "owner", "lotData"   ) 
 
 $lotsController -> calculateMilliemes () ;
 $imputationsController -> setInvoicesController ($invoicesController) ;
+$imputationsController -> setAccountingPlanController ($accountingPlanController) ;
 
 if (isset($argc))
 	{
@@ -146,7 +147,10 @@ if (isset($argc))
 			{
 			$invoicesController -> calculateImputations () ;
 			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
+			$invoicesController -> displayInvoicesList () ;
+
 			$imputationsController -> makeAccountStatement () ;
+			$imputationsController -> displayAccountStatement () ;
 			}
 		}
 		
