@@ -35,6 +35,11 @@
 		{
 		return $this->objects[$key] ;
 		}
+
+	public function getFilteredWithKey ($key)	
+		{
+		return $this->filteredObjects[$key] ;
+		}
 	
 	public function setFileName ($filename)	
 		{
@@ -231,8 +236,6 @@
 			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
 			function ($item) use($key0, $value0)
 				{
-				
-				
 				$keys1 = preg_split("/:/",$key0) ;
 				$n = count($keys1) ;
 				if ( $n == 1 )
@@ -260,6 +263,63 @@
 					}
 
 				return (!strcmp($value,$value0)) ;
+				} 
+			) ;
+		if (!strcmp ($operator,"or"))	
+			{
+			$this->filteredObjects = array_merge ($this->filteredObjects, $array) ;
+			}
+		else
+			{
+			$this->filteredObjects = $array ;
+			}
+			
+		$this->filteredCount = count($this->filteredObjects)	;
+		return $this ;
+		}
+		
+	public function selectBetweenDates ($operator,$key0,$startDate, $endDate)	
+		{
+		$array = array_filter (
+			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
+			function ($item) use($key0, $startDate, $endDate)
+				{
+				$keys1 = preg_split("/:/",$key0) ;
+				$n = count($keys1) ;
+				if ( $n == 1 )
+					{
+					$key00 = $keys1 [0] ;
+					if ( ! (array_key_exists($key0,$item)) )
+						{
+						return false ;
+						}
+					$key0 .= "Eng" ;
+					$value = $item[$key0] ;
+					}
+				elseif ( $n == 2 )	
+					{
+					$key00 = $keys1 [0] ;
+					$key01 = $keys1 [1] ;
+					if (! array_key_exists($key00,$item) )
+						{
+						return false ;
+						}
+					if (! array_key_exists($key01,$item[$key00]) )
+						{
+						return false ;
+						}
+					$key01 .= "Eng" ;
+					$value = $item[$key00][$key01] ;
+					}
+
+				$res = strcmp ($startDate, $value) ;
+				if ( $res > 0 )
+					{ return false ; }
+				$res = strcmp ($endDate, $value) ;
+				if ( $res < 0 )
+					{ return false ; }
+				
+				return (true) ;
 				} 
 			) ;
 		if (!strcmp ($operator,"or"))	
@@ -353,7 +413,7 @@
 		
 	public function sortNumeric ($key0)
 		{
-		usort ($this->filteredObjects, 
+		uasort ($this->filteredObjects, 
 			function ($a,$b) use ($key0)
 				{
 				if ( ! array_key_exists($key0,$a) )
@@ -374,7 +434,7 @@
 		{
 		print ("Sort by date\n") ;
 		$key = $key0."Eng" ;
-		usort ($this->filteredObjects,
+		uasort ($this->filteredObjects,
 			function($a,$b) use ($key)
 				{
 				if ( ! array_key_exists($key,$a) )

@@ -23,6 +23,11 @@
 		$this->accountingPlanController = $accountingPlanController ;
 		}
 		
+	public function setAccountingYear ($startDate, $endDate)	
+		{
+		$invoicesController -> selectBetweenDates ("and", "dateEng", $startDate, $endDate) ;
+		}
+		
 	public function makeAccountStatement ()
 		{
 		foreach ($this->objects as $imputationKey => $imputation)
@@ -31,7 +36,7 @@
 			
 			$this->objects[$imputationKey]["invoices"] = array () ;
 			
-			foreach ($this->invoicesController->getObjects() as $invoiceKey => $invoice )
+			foreach ($this->invoicesController->getFiltered() as $invoiceKey => $invoice )
 				{
 				if ( ! array_key_exists ("calculatedImputations", $invoice))
 					{
@@ -49,13 +54,12 @@
 					}
 
 				}
-			
 			$invoices = $this->objects[$imputationKey]["invoices"] ;
 			$accounts = array () ;
 			foreach ($invoices as $invoiceKey => $invoiceData)	
 				{
 				$accountCode = $invoiceData["accountCode"] ;
-				$invoice = $this->invoicesController -> getObjectWithKey ($invoiceKey) ;
+				$invoice = $this->invoicesController -> getFilteredWithKey ($invoiceKey) ;
 
 				if ( ! array_key_exists ($accountCode,$accounts) )
 					$accounts[$accountCode] = array () ;
@@ -77,6 +81,7 @@
 				$accounts[$accountCode]["invoicesDates"][] = $invoice["dateEng"] ;
 				$accounts[$accountCode]["invoicesValues"][] = $invoice["calculatedImputations"][$imputationKey] ;
 				}
+
 			
 			$imputationTotal = 0 ;
 			foreach ($accounts as $accountCode => $accountData)
@@ -95,7 +100,7 @@
 			$this->objects[$imputationKey]["accounts"] = $accounts ;
 			}
 			
-		# print_r ($this->objects) ;
+		//print_r ($this->objects) ;
 		}	
 		
 		
@@ -110,7 +115,7 @@
 				printf ("\033[1m\t%10d : %-32s\033[0m\n", $accountCode, $accountLabel) ;
 				foreach ( $accountData["invoicesKeys"] as $invoiceKey )
 					{
-					$invoice = $this->invoicesController->objects[$invoiceKey] ;
+					$invoice = $this->invoicesController->filteredObjects[$invoiceKey] ;
 					$imputationValue = $invoice["calculatedImputations"][$imputationKey] ;
 					
 					

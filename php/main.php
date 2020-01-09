@@ -48,7 +48,7 @@ if (isset($argc))
 		}
 	echo "\n" ;
 	
-	if ( $argc == 2 )	
+	if ( $argc >= 2 )	
 		{
 		if ( $argv[1] === "owners")
 			{
@@ -143,11 +143,66 @@ if (isset($argc))
 			{
 			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
 			}
-		elseif ( $argv[1] === "accountStatement")	
+		elseif ( $argv[1] === "extract")	
 			{
+			$startDate = $argv[2] ;
+			$endDate   = $argv[3] ;
+
+			$invoicesController -> selectAll () ;
+			$invoicesController -> selectBetweenDates ("and","date",$startDate, $endDate) ;
 			$invoicesController -> calculateImputations () ;
 			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
 			$invoicesController -> displayInvoicesList () ;
+			}
+
+		elseif ( $argv[1] === "journal")	
+			{
+			$year = $argv[2] ;
+			if ( $year == 0 )
+				{
+				$startDate = "2018-06-01" ;
+				$endDate = date("Y-m-d") ;
+				}
+			elseif ( $year == 1 )
+				{
+				$startDate = "2018-06-01" ;
+				$endDate   = "2019-06-30" ;
+				}
+			elseif ( $year == 2 )	
+				{
+				$startDate = "2019-06-30" ;
+				$endDate   = "2020-06-30" ;
+				}
+			$invoicesController -> selectAll () ;
+			$invoicesController -> selectBetweenDates ("and","date",$startDate, $endDate) ;
+			$invoicesController -> calculateImputations () ;
+			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
+			$invoicesController -> displayInvoicesList () ;
+			}
+		elseif ( $argv[1] === "accountStatement")	
+			{
+			$year = $argv[2] ;
+			if ( $year == 0 )
+				{
+				$startDate = "2018-06-01" ;
+				$endDate = date("Y-m-d") ;
+				}
+			elseif ( $year == 1 )
+				{
+				$startDate = "2018-06-01" ;
+				$endDate   = "2019-06-30" ;
+				}
+			elseif ( $year == 2 )	
+				{
+				$startDate = "2019-06-30" ;
+				$endDate   = "2020-06-30" ;
+				}
+
+			$invoicesController -> selectAll () ;
+			$invoicesController -> selectBetweenDates ("and","date",$startDate, $endDate) ;
+			$invoicesController -> calculateImputations () ;
+			$invoicesController -> checkWithAccountingPlan ($accountingPlanController) ;
+			//$invoicesController -> displayInvoicesList () ;
 
 			$imputationsController -> makeAccountStatement () ;
 			$imputationsController -> displayAccountStatement () ;

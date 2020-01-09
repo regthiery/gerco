@@ -16,13 +16,13 @@
 		
 	public function calculateImputations ()
 		{
-		foreach ( $this->objects as $key => $invoice )
+		foreach ( $this->filteredObjects as $key => $invoice )
 			{
 			$sum = 0 ;
 			if ( array_key_exists ("imputations", $invoice) )
 				{
 				$imputations = $invoice["imputations"] ;
-				$this->objects[$key]["calculatedImputations"] = array () ;
+				$this->filteredObjects[$key]["calculatedImputations"] = array () ;
 				foreach ( $imputations as $key0 => $imputation )
 					{
 					$value = $invoice["value"] ;
@@ -46,24 +46,24 @@
 							{
 							$percent = $percents[1] ;
 							// $this->objects[$key][$imputationKey] = $value * $percent / 100.0 ;
-							$this->objects[$key]["calculatedImputations"][$imputationKey] = $value * $percent / 100.0 ;
+							$this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $value * $percent / 100.0 ;
 							}
 						else
 							{
 							// $this->objects[$key][$imputationKey] = $imputationValue ;
-							$this->objects[$key]["calculatedImputations"][$imputationKey] = $imputationValue ;
+							$this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $imputationValue ;
 							}	
 						// $sum += $this->objects[$key][$imputationKey] ;
-						$sum += $this->objects[$key]["calculatedImputations"][$imputationKey] ;
+						$sum += $this->filteredObjects[$key]["calculatedImputations"][$imputationKey] ;
 						}
 					}
 					
 				$res = abs ($invoice["value"] - $sum) ;
-				if ( $res >1e-3 )	
+				if ( $res >1e-2 )	
 					{
-					$index = $this->objects[$key][$this->primaryKey] ;
+					$index = $this->filteredObjects[$key][$this->primaryKey] ;
 					print ("Erreur sur les imputations de la facture $index\n") ;
-					print ("Son montant de $value euros n'est pas la somme des imputations \n") ;
+					print ("Son montant de $value euros n'est pas égale à la somme des imputations $sum\n") ;
 					print_r ($imputations) ;
 					}
 				}
@@ -176,8 +176,11 @@
 	public function checkWithAccountingPlan (AccountingPlanController &$accountingPlanController)
 		{
 		$this->accountingPlanController = $accountingPlanController ;
-		$this->selectAll () ;
+		//$this->selectAll () ;
+
 		$this->sortByDate('date') ;
+		
+		
 		$invoicesCount = $this->filteredCount ;
 		$invoiceIndex = $invoicesCount ;
 		foreach ($this->filteredObjects as $key => $invoice)
@@ -192,19 +195,17 @@
 			$accountLabel = $this->accountingPlanController -> getAccountLabel ($accountIndex) ;
 			
 			
-			$this->objects[$invoiceKey]["accountCode"]  = $accountCode ;
-			$this->objects[$invoiceKey]["accountLabel"] = $accountLabel ;
-			$this->objects[$invoiceKey]["invoiceIndex"] = $invoiceIndex ;
+			$this->filteredObjects[$invoiceKey]["accountCode"]  = $accountCode ;
+			$this->filteredObjects[$invoiceKey]["accountLabel"] = $accountLabel ;
+			$this->filteredObjects[$invoiceKey]["invoiceIndex"] = $invoiceIndex ;
 			
-			// printf ("%12s \t %6d \t %10s \t %-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
 			$invoiceIndex -- ;
 			}
-		# print_r ($this->objects) ;
 		}
 		
 	public function getInvoiceKeyWithIndex ($index)	
 		{
-		foreach ($this->objects as $key => $data)
+		foreach ($this->filteredObjects as $key => $data)
 			{
 			if ( $data['invoiceIndex'] == $index )
 				{
@@ -216,14 +217,15 @@
 		
 	public function displayInvoicesList ()
 		{
-		$invoicesCount = $this->objectsCount ;
+		$invoicesCount = $this->filteredCount ;
 		
-		print_r ($this->objects) ;
+
 		for ( $i=0 ; $i < $invoicesCount ; $i ++ )
 			{
 			$invoiceIndex = $i + 1 ;
 			$invoiceKey = $this->getInvoiceKeyWithIndex ($invoiceIndex) ;
-			$invoice = $this->objects[$invoiceKey] ;
+
+			$invoice = $this->filteredObjects[$invoiceKey] ;
 			$date = $invoice["date"] ;
 			$accountCode = $invoice['accountCode'] ;
 			$from = $invoice['from'] ;
