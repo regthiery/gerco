@@ -9,7 +9,6 @@ include_once "LotsController.php" ;
 	
 	public function __construct ()
 		{
-		echo "ResidentsController object created\n" ;
 		$this->setPrimaryKey("lot") ;
 		}
 		

@@ -2,7 +2,6 @@
 
 <?php
 
-include_once "GlobalVariables.php" ;
 include_once "HashController.php" ;
 include_once "LotsController.php" ;
 include_once "ResidentsController.php" ;
@@ -10,6 +9,8 @@ include_once "OwnersController.php" ;
 include_once "InvoicesController.php" ;
 include_once "AccountingPlanController.php" ;
 include_once "ImputationsController.php" ;
+include_once "CondominiumController.php" ;
+include_once "AccountingExercisesController.php" ;
 
 setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
 
@@ -23,13 +24,19 @@ $ownersController = new OwnersController ;
 $ownersController -> readFile ("../00-data/02-owners.txt") ;
 
 $invoicesController = new InvoicesController ;
-$invoicesController -> readFile ("../00-data/01-factures.txt") ;
+$invoicesController -> readFile ("../00-data/01-invoices.txt") ;
 
 $accountingPlanController = new AccountingPlanController ;
 $accountingPlanController -> readFile ("../00-data/04-accountingPlan.txt") ;
 
 $imputationsController = new ImputationsController ;
 $imputationsController -> readFile ("../00-data/05-imputations.txt") ;
+
+$condominiumController = new CondominiumController ;
+$condominiumController -> readFile ("../00-data/06-condominium.txt") ;
+
+$accountingExercisesController = new AccountingExercisesController ;
+$accountingExercisesController -> readFile ("../00-data/07-accountingExercises.txt") ;
 
 
 $lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) ;
@@ -40,16 +47,17 @@ $lotsController -> calculateMilliemes () ;
 $imputationsController -> setInvoicesController ($invoicesController) ;
 $imputationsController -> setAccountingPlanController ($accountingPlanController) ;
 
+$accountingExercisesController -> setAccountingPlanController ($accountingPlanController) ;
+$accountingExercisesController -> setImputationsController ($imputationsController) ;
+
 if (isset($argc))
 	{
-	for ( $i = 0 ; $i < $argc ; $i++)
-		{
-		echo "argument $i $argv[0]" ;
-		}
-	echo "\n" ;
-	
 	if ( $argc >= 2 )	
 		{
+		if ( $argv[1] === "copro" )
+			{
+			$condominiumController -> displayData ("name", "syndicName", "creationDate") ;
+			}
 		if ( $argv[1] === "owners")
 			{
 			$lotsController -> showOwners("A") ;
@@ -91,7 +99,7 @@ if (isset($argc))
 			{
 			$lotsController -> showParkings () ;
 			}
-		elseif ( $argv[1] === "factures" )	
+		elseif ( $argv[1] === "invoices" )	
 			{
 			$invoicesController -> showFactures () ;
 			}
@@ -207,7 +215,16 @@ if (isset($argc))
 			$imputationsController -> makeAccountStatement () ;
 			$imputationsController -> displayAccountStatement () ;
 			}
+		elseif ( $argv[1] === "exercise")
+			{
+			$year = $argv[2] ;
+			//print_r ($accountingExercisesController) ;
+			$accountingExercisesController -> calculateImputations ($year) ;
+			$accountingExercisesController -> displayPrevisionalBudget ($year) ;
+			}
 		}
+		
+		
 		
 	echo "\n" ;
 	}

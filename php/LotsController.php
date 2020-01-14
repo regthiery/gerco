@@ -7,7 +7,6 @@
 	
 	public function __construct ()
 		{
-		echo "LotsController object created\n" ;
 		$this->setPrimaryKey("lot") ;
 		}
 		

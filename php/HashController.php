@@ -15,7 +15,6 @@
 	
 	public function __construct ()
 		{
-		echo "HashController created\n" ;
 		}
 	public function setPrimaryKey ($primaryKey)
 		{
@@ -33,12 +32,24 @@
 		
 	public function getObjectWithKey ($key)	
 		{
-		return $this->objects[$key] ;
+		if (array_key_exists($key,$this->objects))
+			return $this->objects[$key] ;
+		else
+			{
+			$className = get_class($this) ;
+			echo "Key $key does not exist in $className:objects.\n" ;
+			}	
 		}
 
 	public function getFilteredWithKey ($key)	
 		{
-		return $this->filteredObjects[$key] ;
+		if (array_key_exists($key,$this->filteredObjects))
+			return $this->filteredObjects[$key] ;
+		else
+			{
+			$className = get_class($this) ;
+			echo "Key $key does not exist in $className:filteredObjects.\n" ;
+			}	
 		}
 	
 	public function setFileName ($filename)	
@@ -53,7 +64,7 @@
 		
 		$primaryLabel = ucfirst($this->primaryKey) ;
 		
-		print ("HashController readFile $filename $primaryLabel \n") ;
+		//print ("HashController readFile $filename $primaryLabel \n") ;
 
 		$this->setFileName ($filename) ;
 		$txt = file($this->filename) ;

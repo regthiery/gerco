@@ -1,1 +1,0 @@
-$theLots = array () ;

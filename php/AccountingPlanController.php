@@ -6,7 +6,6 @@
 {
 	public function __construct ()
 		{
-		echo "AccountingPlanController created\n" ;
 		$this -> setPrimaryKey ("code") ;
 		}
 

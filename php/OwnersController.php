@@ -9,7 +9,6 @@ include_once "LotsController.php" ;
 	
 	public function __construct ()
 		{
-		echo "OwnersController object created\n" ;
 		$this->setPrimaryKey("owner") ;
 		}
 				

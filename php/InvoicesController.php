@@ -10,7 +10,6 @@
 	
 	public function __construct ()
 		{
-		echo "InvoicesController object created\n" ;
 		$this->setPrimaryKey("index") ;
 		}
 		

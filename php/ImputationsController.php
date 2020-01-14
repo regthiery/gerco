@@ -9,7 +9,6 @@
 	
 	public function __construct ()
 		{
-		echo "ImputationsController created\n" ;
 		$this->setPrimaryKey ("code") ;
 		}
 		
