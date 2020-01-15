@@ -40,4 +40,27 @@
 		$account = $this->objects[$key] ;
 		return $account["label"] ;
 		}
+	
+	public function createOwnersAccount ($ownersController)	
+		{
+		foreach ($ownersController->getObjects() as $ownerKey => $ownerData)
+			{
+//			print_r ($ownerData) ;
+			$syndicCode = $ownerData["syndicCode"] ;
+			$lastName = $ownerData ["lastname"] ;
+			$firstName = $ownerData ["firstname"] ;
+			$accountCode = "450$syndicCode" ;
+			$newAccount = array (
+				"code" => $accountCode,
+				"label" => "Compte propriétaire (lot $ownerKey) = $lastName $firstName" ,
+				"shortName" => "$lastName $firstName"
+				) ;
+			$this->objects[$accountCode]	= $newAccount ;
+			}
+		}
+		
+	public function sortAccounts ()
+		{
+		ksort ($this->objects, SORT_STRING) ;
+		}	
 }

@@ -16,20 +16,20 @@ include_once "LotsController.php" ;
 		{
 		$this->unselect () ;
 		$this->selectByKey ("or","lotData:batiment", $batiment) ;
-		$this->display("lotData:type", "lotData:floor","lotData:situation","lotData:general","lastname","firstname", "syndicCode") ;
+		$this->displayData("lotData:type", "lotData:floor","lotData:situation","lotData:general","lastname","firstname", "syndicCode") ;
 		}
 		
 	public function showOwners()		
 		{
 		$this->selectAll () ;
 		$this->sortNumeric("owner") ;
-		$this->display ("general","lastname","firstname","syndicCode") ;
+		$this->displayData ("general","lastname","firstname","syndicCode") ;
 		}
 
 	public function showSortedBySyndicCode()		
 		{
 		$this->selectAll () ;
 		$this->sortNumeric("syndicCode") ;
-		$this->display ("syndicCode","general","lastname","firstname") ;
+		$this->displayData ("syndicCode","general","lastname","firstname") ;
 		}
 }

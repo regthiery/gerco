@@ -6,6 +6,7 @@ include_once "HashController.php" ;
 include_once "LotsController.php" ;
 include_once "ResidentsController.php" ;
 include_once "OwnersController.php" ;
+include_once "SuppliersController.php" ;
 include_once "InvoicesController.php" ;
 include_once "AccountingPlanController.php" ;
 include_once "ImputationsController.php" ;
@@ -22,6 +23,9 @@ $residentsController -> readFile ("../00-data/03-residents.txt") ;
 
 $ownersController = new OwnersController ;
 $ownersController -> readFile ("../00-data/02-owners.txt") ;
+
+$suppliersController = new SuppliersController ;
+$suppliersController -> readFile ("../00-data/08-suppliers.txt") ;
 
 $invoicesController = new InvoicesController ;
 $invoicesController -> readFile ("../00-data/01-invoices.txt") ;
@@ -43,9 +47,13 @@ $lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) 
 $residentsController -> joinWithData ($lotsController  , "lot"  , "lotData"   ) ;
 $ownersController    -> joinWithData ($lotsController  , "owner", "lotData"   ) ;
 
+$accountingPlanController -> createOwnersAccount ($ownersController) ;
+$accountingPlanController -> sortAccounts () ;
+
 $lotsController -> calculateMilliemes () ;
 $imputationsController -> setInvoicesController ($invoicesController) ;
 $imputationsController -> setAccountingPlanController ($accountingPlanController) ;
+$imputationsController -> createOwnersKeys ($ownersController) ;
 
 $accountingExercisesController -> setAccountingPlanController ($accountingPlanController) ;
 $accountingExercisesController -> setImputationsController ($imputationsController) ;
@@ -143,7 +151,7 @@ if (isset($argc))
 			print_r ($imputationKeys) ;
 			}
 			
-		elseif ( $argv[1] === "planComptable")	
+		elseif ( $argv[1] === "accountingPlan")	
 			{
 			$accountingPlanController -> display () ;
 			}
@@ -221,6 +229,10 @@ if (isset($argc))
 			//print_r ($accountingExercisesController) ;
 			$accountingExercisesController -> calculateImputations ($year) ;
 			$accountingExercisesController -> displayPrevisionalBudget ($year) ;
+			}
+		elseif ( $argv[1] === "suppliers")	
+			{
+			$suppliersController -> displaySuppliers () ;
 			}
 		}
 		

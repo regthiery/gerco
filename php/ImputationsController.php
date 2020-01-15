@@ -27,6 +27,18 @@
 		$invoicesController -> selectBetweenDates ("and", "dateEng", $startDate, $endDate) ;
 		}
 		
+	public function createOwnersKeys ($ownersController)	
+		{
+		foreach ($ownersController->getObjects() as $ownerKey => $ownerData)
+			{
+			//print_r ($ownerData) ;
+			$lastname = $ownerData ["lastname"] ;
+			$firstname = $ownerData ["firstname"] ;
+			$this->objects["copro$ownerKey"] = array ( "code" => "copro$ownerKey",
+				"label" => "Copropriétaire $lastname $firstname") ;
+			}
+		}
+		
 	public function makeAccountStatement ()
 		{
 		foreach ($this->objects as $imputationKey => $imputation)
