@@ -34,8 +34,10 @@
 			//print_r ($ownerData) ;
 			$lastname = $ownerData ["lastname"] ;
 			$firstname = $ownerData ["firstname"] ;
+			$syndicCode = $ownerData ["syndicCode"] ;
 			$this->objects["copro$ownerKey"] = array ( "code" => "copro$ownerKey",
-				"label" => "Copropriétaire $lastname $firstname") ;
+				"label" => "Copropriétaire $lastname $firstname" , 
+				"index" => 1000 + $syndicCode ) ;
 			}
 		}
 		

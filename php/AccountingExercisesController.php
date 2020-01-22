@@ -27,12 +27,10 @@
 	public function calculateImputations ($e)		
 		{
 		$exercise = $this->getObjectWithKey ($e) ;
-		print_r ($exercise) ;
 		
 		$accounts = array () ;
 		foreach ($exercise as $key=>$item)
 			{
-			print("$key\t\t$item\n") ;
 			if ( preg_match("/provision(\d+)/", $key, $matches) )
 				{
 				$accountKey = $matches[1] ;
@@ -64,20 +62,35 @@
 				}
 			}
 
+
 		$imputations = array () ;			
 		foreach ($accounts as $code => $data )	
 			{
 			foreach ($data["imputations"] as $imputationKey => $imputationValue)
 				{
-				$imputations[$imputationKey][$code] = array ("label" => $data["label"],
+				$imputations[$imputationKey]["accounts"][$code] = array ("label" => $data["label"],
 					"value" => $imputationValue );
 				}
 			}
-		
-//		ksort ($accounts) ;
 
+
+		foreach ($imputations as $imputationCode => $imputationData )	
+			{
+			ksort ($imputations[$imputationCode]["accounts"], SORT_STRING) ;
+			$sum = 0 ;
+			foreach ($imputationData["accounts"] as $accountCode=>$accountData)
+				{
+				$sum += $accountData["value"] ;
+				}
+			$imputations[$imputationCode]["total"] = $sum ;
+			$imputation = $this->imputationsController->getObjectWithKey($imputationCode) ;
+			$imputationIndex = $imputation["index"] ;
+			$imputations[$imputationCode]["index"] = $imputationIndex ;
+			}
+		
 		$this->objects[$e]["accounts"] = $accounts ;
 		$this->objects[$e]["imputations"] = $imputations ;
+		
 		}
 
 
@@ -87,13 +100,19 @@
 		print_r ($exercise) ;
 		
 		$imputations = $exercise["imputations"] ;
+		uasort ($imputations,
+			function($a,$b) 
+				{ if ( $a["index"] == $b["index"] ) return 0 ;  return ( $a["index"] < $b["index"] ) ? -1 : 1 ; } ) ;
+				
 		foreach ( $imputations as $imputationKey => $imputationData)
 			{
-			printf ("\033[1;38,5m%-60s %-60s\033[0m\n", $imputationKey, $this->imputationsController->getObjectWithKey($imputationKey)["label"]) ;
-			foreach ($imputationData as $accountCode => $accountData)
+			printf ("\033[1;38,5m%-60s (%s)\033[0m\n", $this->imputationsController->getObjectWithKey($imputationKey)["label"], $imputationKey) ;
+			$accountsList = $imputationData["accounts"] ;
+			foreach ($accountsList as $accountCode => $accountData)
 				{
-				printf ("%10d %10.2f\t\t %s\n", $accountCode, $accountData["value"], $accountData["label"] ) ;
+				printf ("\t%-10d %10.2f\t\t %s\n", $accountCode, $accountData["value"], $accountData["label"] ) ;
 				}
+			printf("\t\033[1mTotal %15.2f\033[0m\n", $exercise["imputations"][$imputationKey]["total"]) ;
 			}
 		}
 }		

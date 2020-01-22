@@ -38,6 +38,7 @@
 			{
 			$className = get_class($this) ;
 			echo "Key $key does not exist in $className:objects.\n" ;
+			return NULL ;
 			}	
 		}
 
@@ -49,6 +50,7 @@
 			{
 			$className = get_class($this) ;
 			echo "Key $key does not exist in $className:filteredObjects.\n" ;
+			return NULL ;
 			}	
 		}
 	
