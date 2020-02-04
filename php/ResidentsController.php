@@ -17,6 +17,6 @@ include_once "LotsController.php" ;
 		{
 		$this->unselect () ;
 		$this->selectByKey ("or","batiment", $batiment) ;
-		$this->display("lotData:type", "lotData:floor","lotData:situation","lastname","firstname") ;
+		$this->displayData("lotData:type", "lotData:floor","lotData:situation","lastname","firstname") ;
 		}	
 }

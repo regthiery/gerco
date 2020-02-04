@@ -1,5 +1,8 @@
 <?php
 
+include_once "ResolutionsController.php" ;
+
+
 #=============================================================================
 	class GeneralMeetingController extends HashController
 #=============================================================================
@@ -8,24 +11,49 @@
 	protected $ownersController ;
 	protected $lotsController ;
 	
+	protected $resolutionsController ;
+	protected $meetingIndex ;
+	protected $meeting ;
+	
 	public function __construct ()
 		{
 		$this->setPrimaryKey("index") ;
+		$this->resolutionsController = new ResolutionsController ;
+		$this->resolutionsController -> setGeneralMeetingController ($this) ;
 		}
 		
 	public function setOwnersController ($ownersController)	
 		{
 		$this -> ownersController = $ownersController ;
+		$this -> resolutionsController -> setOwnersController ($ownersController) ;
 		}
 
 	public function setLotsController ($lotsController)	
 		{
 		$this -> lotsController = $lotsController ;
 		}
-	
-	public function checkAttendance ($index)			
+		
+	public function setImputationsController ($imputationsController)	
 		{
-		$meeting = $this->getObjectWithKey ($index) ;
+		$this->resolutionsController -> setImputationsController ($imputationsController) ;
+		}
+		
+	public function setMeetingIndex ($index)	
+		{
+		$this->meetingIndex = $index ;
+		$this->meeting = $this->getObjectWithKey ($this->meetingIndex) ;
+		$filename = $this->meeting["resolutionsFileName"] ;
+		$this->resolutionsController -> readFile ("../00-data/$filename") ;
+		}
+		
+	public function getMeeting ()	
+		{
+		return $this->meeting ;
+		}
+	
+	public function checkAttendance ()			
+		{
+		$meeting = $this->meeting ;
 		
 		$presentsData = array () ;
 		$presentsByBatData = array () ;
@@ -92,12 +120,13 @@
 		$meeting["absentsData"] = $absentsData ;
 		$meeting["absentsByBatData"] = $absentsByBatData ;
 
-		$this->objects[$index] = $meeting ;
+		$this->objects[$this->meetingIndex] = $meeting ;
+		$this->meeting = $meeting ;
 		}
 		
-	public function displayAttendance ($index)
+	public function displayAttendance ()
 		{
-		$meeting = $this->getObjectWithKey ($index) ;
+		$meeting = $this->meeting ;
 
 		$i = 1 ;
 		$generalSum = 0 ;
@@ -165,5 +194,22 @@
 			}
 			
 //		print_r ($meeting["absentsByBatData"])	;
+		}
+		
+	public function displayResolutions ()
+		{
+		$meeting = $this->meeting ;
+		$this->resolutionsController -> displayResolutions () ;
+		}	
+		
+		
+	public function calculateVotingResults ()	
+		{
+		$this->resolutionsController -> calculateVotingResults () ;
+		}
+
+	public function displayVotingResults ()	
+		{
+		$this->resolutionsController -> displayVotingResults () ;
 		}
 }

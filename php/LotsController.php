@@ -4,10 +4,16 @@
 	class LotsController extends HashController
 #=============================================================================
 {
+	protected $imputationsController ;
 	
 	public function __construct ()
 		{
 		$this->setPrimaryKey("lot") ;
+		}
+		
+	public function setImputationsController ($imputationsController)	
+		{
+		$this->imputationsController = $imputationsController ;
 		}
 		
 	public function checkMilliemesForBatiment ($bat)	
@@ -112,15 +118,47 @@
 		{
 		foreach ($this->objects as $key => $item)
 			{
-			if ( array_key_exists("dependances",$item))
+			$type = $item["type"] ;
+
+			if ( $type === "T1" or $type === "T2" or $type === "T3" or $type === "T4")
 				{
-				$type = $item["type"] ;
-				if ( $type === "T1" or $type === "T2" or $type === "T3" or $type === "T4")
+				foreach ($this->imputationsController->getObjects() as $imputationKey => $imputationData)
+	 				{
+					if ( array_key_exists ($imputationKey, $this->objects[$key]))
+						$this->objects[$key]["imputations"][$imputationKey] = $this->objects[$key][$imputationKey] ;
+		 			}
+
+				if ( array_key_exists("dependances",$item))
 					{
 					$lot = $item["lot"] ;
 					$bat = $item["batiment"] ;
 					$dep = $item["dependances"] ;
 				
+					foreach ($this->imputationsController->getObjects() as $imputationKey => $imputationData)
+						{
+						// print ("$key => Imputation $imputationKey\n") ;
+	
+						if ( ! empty ($dep))					
+							{
+							foreach ( $dep as $i => $depIndex)
+								{
+								$dependanceLot = $this->getObjectWithKey($depIndex) ;
+								if ($dependanceLot == NULL)
+									continue ;
+								// print_r($dependanceLot) ;
+								$this->objects[$key]["dependanceLots"][$depIndex] = $dependanceLot ;
+								if ( array_key_exists ($imputationKey, $dependanceLot) )
+									{
+									if ( ! array_key_exists ($imputationKey, $this->objects[$key]["imputations"]))
+										$this->objects[$key]["imputations"][$imputationKey] = 0 ;
+									$this->objects[$key]["imputations"][$imputationKey] += $dependanceLot[$imputationKey] ;
+									}
+								}
+							}	
+						}
+				
+				
+					/*
 					$general0 = $item["general"] ;
 					$general = $general0 ;
 					foreach ( $dep as $i => $depItem )
@@ -134,6 +172,7 @@
 						$general += $value ;
 						}
 					$this->objects[$key]["cgeneral"] = $general ;
+					*/
 					}
 				}
 			}
@@ -144,7 +183,7 @@
 		$this->unselect () ;
 		$this->selectDefinedKey("or","prix") ;
 	      $this->sortNumeric ("lot") ;
-		$this->display("batiment","type","prix","prixm2","owner","floor","situation","general","cgeneral","ownerData:lastname") ;
+		$this->displayData("batiment","type","prix","prixm2","owner","floor","situation","general","cgeneral","ownerData:lastname") ;
 		}	
 		
 	public function showOwners ($batiment)

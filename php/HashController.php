@@ -53,6 +53,20 @@
 			return NULL ;
 			}	
 		}
+		
+	public function getObjectWithKeyValue ($key0,$value0)	
+		{
+		foreach ($this->objects as  $key => $item)
+			{
+			if ( array_key_exists($key0, $item))
+				{
+				$value = $item[$key0] ;
+				if ( ! strcmp ($value,$value0))
+					{ return $item ; }
+				}
+			}
+		return NULL ;	
+		}
 	
 	public function setFileName ($filename)	
 		{
@@ -96,7 +110,9 @@
 						$key = lcfirst ($key) ;
 						$value=preg_replace ('/\s\s+/', ' ', $value) ;
 						$valuesArray = explode (' ', $value ) ;
-						$object[$key] = $valuesArray ;
+
+						if ( count ($valuesArray) > 0 && !empty($valuesArray[0]))
+							$object[$key] = $valuesArray ;
 						}
 					elseif ( preg_match ("/(.*)Date/", $line, $matches))
 						{
@@ -133,16 +149,16 @@
 		{
 		$i = 1 ;
 		$primaryLabel = ucfirst ($this->primaryKey) ;
-		printf ("\t%4s %8s %18s ", "#", "-", " ") ;
+		printf ("\033[1m\t%4s %8s %18s ", "#", "-", " ") ;
 		foreach ($keys as $key0)
 			{
-			printf ( "%18s", $key0) ;
+			printf ( "%-25s\t", $key0) ;
 			}
-		printf ("\n") ;
+		printf ("\033[0m\n") ;
 		foreach ( $this->filteredObjects as $key => $value )
 			{
 			$objectPrimaryValue = $this->filteredObjects[$key][$this->primaryKey] ;
-			printf ("\t%4d) %8s %8s ", $i, $primaryLabel, $objectPrimaryValue ) ;
+			printf ("\t%4d) %-8s %-8s ", $i, $primaryLabel, $objectPrimaryValue ) ;
 			
 			foreach ($keys as $key0)
 				{
@@ -171,11 +187,11 @@
 				if ( is_array($value))
 					{
 					$values = implode ("    ", $value) ;
-					printf ("  : %s    ", $values) ;
+					printf ("  : %-20s\t", $values) ;
 					}
 				else
 					{
-					printf (" : %16s", $value) ;
+					printf (" : %-25s\t", $value) ;
 					}
 				}
 			printf("\n") ;

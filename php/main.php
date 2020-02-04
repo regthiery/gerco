@@ -12,6 +12,7 @@ include_once "AccountingPlanController.php" ;
 include_once "ImputationsController.php" ;
 include_once "CondominiumController.php" ;
 include_once "AccountingExercisesController.php" ;
+include_once "GeneralMeetingController.php" ;
 
 setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR','fr','fr','fra','fr_FR@euro');
 
@@ -42,21 +43,31 @@ $condominiumController -> readFile ("../00-data/06-condominium.txt") ;
 $accountingExercisesController = new AccountingExercisesController ;
 $accountingExercisesController -> readFile ("../00-data/07-accountingExercises.txt") ;
 
+$generalMeetingController = new GeneralMeetingController ;
+$generalMeetingController -> readFile ("../00-data/09-generalMeeting.txt") ;
 
+
+$lotsController -> setImputationsController ($imputationsController) ;
+
+$lotsController -> calculateMilliemes () ;
 $lotsController      -> joinWithData ($ownersController, "owner", "ownerData" ) ;
 $residentsController -> joinWithData ($lotsController  , "lot"  , "lotData"   ) ;
 $ownersController    -> joinWithData ($lotsController  , "owner", "lotData"   ) ;
+$ownersController    -> joinWithData ($residentsController, "owner", "residentData") ;
 
 $accountingPlanController -> createOwnersAccount ($ownersController) ;
 $accountingPlanController -> sortAccounts () ;
 
-$lotsController -> calculateMilliemes () ;
 $imputationsController -> setInvoicesController ($invoicesController) ;
 $imputationsController -> setAccountingPlanController ($accountingPlanController) ;
 $imputationsController -> createOwnersKeys ($ownersController) ;
 
 $accountingExercisesController -> setAccountingPlanController ($accountingPlanController) ;
 $accountingExercisesController -> setImputationsController ($imputationsController) ;
+
+$generalMeetingController -> setOwnersController ($ownersController) ;
+$generalMeetingController -> setLotsController ($lotsController) ;
+$generalMeetingController -> setImputationsController ($imputationsController) ;
 
 if (isset($argc))
 	{
@@ -233,6 +244,16 @@ if (isset($argc))
 		elseif ( $argv[1] === "suppliers")	
 			{
 			$suppliersController -> displaySuppliers () ;
+			}
+		elseif ( $argv[1] === "meeting")	
+			{
+			$index = $argv[2] ;
+			$generalMeetingController -> setMeetingIndex ($index) ;
+			$generalMeetingController -> checkAttendance () ;
+			$generalMeetingController -> displayAttendance () ;
+			$generalMeetingController -> displayResolutions () ;
+			$generalMeetingController -> calculateVotingResults () ;
+			$generalMeetingController -> displayVotingResults () ;
 			}
 		}
 		
