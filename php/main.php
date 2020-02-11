@@ -251,9 +251,9 @@ if (isset($argc))
 			$generalMeetingController -> setMeetingIndex ($index) ;
 			$generalMeetingController -> checkAttendance () ;
 			$generalMeetingController -> displayAttendance () ;
-			$generalMeetingController -> displayResolutions () ;
-			$generalMeetingController -> calculateVotingResults () ;
-			$generalMeetingController -> displayVotingResults () ;
+			//$generalMeetingController -> displayResolutions () ;
+			//$generalMeetingController -> calculateVotingResults () ;
+			//$generalMeetingController -> displayVotingResults () ;
 			}
 		}
 		

@@ -1,5 +1,13 @@
 <?php
 
+/**
+*	Gère les informations de l'assemblée générale d'une copropriété
+*
+*	@package Gerco
+*	@author Régis THIERY
+*/
+
+
 include_once "ResolutionsController.php" ;
 
 
@@ -22,6 +30,9 @@ include_once "ResolutionsController.php" ;
 		$this->resolutionsController -> setGeneralMeetingController ($this) ;
 		}
 		
+		/**
+		*	@return void
+		*/
 	public function setOwnersController ($ownersController)	
 		{
 		$this -> ownersController = $ownersController ;
@@ -51,31 +62,43 @@ include_once "ResolutionsController.php" ;
 		return $this->meeting ;
 		}
 	
+	
+	/**
+	*	Récupère la liste des copropriétaires présents et toutes les informations s'y rapportant.
+	*	Calcule la liste des absents
+	*/
 	public function checkAttendance ()			
 		{
-		$meeting = $this->meeting ;
+		$meeting = &$this->meeting ;
 		
-		$presentsData = array () ;
+		$presentsData      = array () ;
 		$presentsByBatData = array () ;
+		$presentGeneralSum = 0 ;
+		$presentSpecialSum = array () ;
 		foreach ($meeting["presents"] as $i => $pseudo)
 			{
 			$owner = $this->ownersController -> getObjectWithKeyValue ("pseudo", $pseudo) ;
 			if ( $owner == NULL )
 				{
-				print ("There are no data for the owner \"$pseudo\" \n") ;
+				print ('There are no data for the owner \"$pseudo\" \n') ;
 				}
 			else
 				{
-				$batiment = $owner["lotData"]["batiment"] ;
-				$special = $owner["lotData"]["special$batiment"] ;
-				$owner["lotData"]["special"] = $special ;
+				print_r($owner) ;
+				$batiment                    = $owner['lotData']['batiment'] ;
+				$special                     = $owner['lotData']['imputations']["special$batiment"] ;
+				$owner['lotData']['special'] = $special ;
 
-				$presentsData[$pseudo] = $owner ;
+				$presentsData[$pseudo]                 = $owner ;
 				$presentsByBatData[$batiment][$pseudo] = $owner ;
+				$presentGeneralSum += $owner['general'] ;
+				if ( array_key_exists($batiment, $presentSpecialSum) )
+					$presentSpecialSum[$batiment] += $special ;
+				else	
+					$presentSpecialSum[$batiment] = 0 ;
 				}
 			}
-
-
+			
 		foreach ($presentsByBatData as $batiment => $ownersOfBat )
 			{
 			uasort ( $ownersOfBat, function ($a,$b)
@@ -85,8 +108,10 @@ include_once "ResolutionsController.php" ;
 		ksort ($presentsByBatData) ;
 
 
-		$absents = array () ;
-		$absentByBat = array () ;
+		$absents          = array () ;
+		$absentByBat      = array () ;
+		$absentGeneralSum = 0 ;
+		$absentSpecialSum = array () ;
 		
 		foreach ($this->ownersController->getObjects() as $ownerKey => $ownerData)
 			{
@@ -97,12 +122,17 @@ include_once "ResolutionsController.php" ;
 				{
 				$absents[$pseudo] = $ownerData ;
 
-				$batiment = $ownerData["lotData"]["batiment"] ;
-				$special = $ownerData["lotData"]["special$batiment"] ;
-				$ownerData["lotData"]["special"] = $special ;
+				$batiment                        = $ownerData['lotData']['batiment'] ;
+				$special                         = $ownerData['lotData']['imputations']["special$batiment"] ;
+				$ownerData['lotData']['special'] = $special ;
 
-				$absentsData[$pseudo] = $ownerData ;
+				$absentsData[$pseudo]                 = $ownerData ;
 				$absentsByBatData[$batiment][$pseudo] = $ownerData ;
+				$absentGeneralSum += $ownerData['general'] ;
+				if ( array_key_exists($batiment, $absentSpecialSum) )
+					$absentSpecialSum[$batiment] += $special ;
+				else	
+					$absentSpecialSum[$batiment] = 0 ;
 				}
 			}
 
@@ -115,54 +145,88 @@ include_once "ResolutionsController.php" ;
 
 		ksort ($absentsByBatData) ;
 
-		$meeting["presentsData"] = $presentsData ;
-		$meeting["presentsByBatData"] = $presentsByBatData ;
-		$meeting["absentsData"] = $absentsData ;
-		$meeting["absentsByBatData"] = $absentsByBatData ;
+		$meeting['presentsData']       = &$presentsData ;
+		$meeting['presentsByBatData']  = &$presentsByBatData ;
+		$meeting['absentsData']        = &$absentsData ;
+		$meeting['absentsByBatData']   = &$absentsByBatData ;
+		
+		$meeting['presentsGeneralSum'] = $presentGeneralSum ;
+		$meeting['absentsGeneralSum']  = $absentGeneralSum ;
+		$meeting['presentsCount']      = count($presentsData) ;
+		$meeting['absentsCount']       = count($absentsData) ;
+		$meeting['presentSpecialSum']  = &$presentSpecialSum ;
+		$meeting['absentSpecialSum']   = &$absentSpecialSum ;
 
-		$this->objects[$this->meetingIndex] = $meeting ;
-		$this->meeting = $meeting ;
+		//$this->objects[$this->meetingIndex] = $meeting ;
+		//$this->meeting = $meeting ;
 		}
+		
+		
+	/**
+	*	Affiche la liste des copropriéaires (présents/représentés ou absents)
+	*
+	*/
 		
 	public function displayAttendance ()
 		{
-		$meeting = $this->meeting ;
+		$meeting = &$this->meeting ;
 
 		$i = 1 ;
 		$generalSum = 0 ;
-		printf("\033[1mCopropriété \033[0m (présents ou représentés)\n") ;
+		printf("\033[1mCopropriété \033[0m (%d présents (ou représentés) sur %d copropriétaires (%.2f %%)\n",
+			$meeting['presentsCount'],
+			$meeting['presentsCount']+$meeting['absentsCount'],
+			$meeting['presentsCount']/($meeting['presentsCount']+$meeting['absentsCount']) * 100.0
+			) ;
 		foreach ($meeting["presentsData"] as $pseudo=> $ownerData)
 			{
-			$lastname = $ownerData["lastname"] ;
-			$firstname = $ownerData["firstname"] ;
-			$general = $ownerData["general"] ;
-			$batiment = $ownerData["lotData"]["batiment"] ;
+			$lastname  = $ownerData['lastname'] ;
+			$firstname = $ownerData['firstname'] ;
+			$general   = $ownerData['general'] ;
+			$batiment  = $ownerData['lotData']['batiment'] ;
 			printf ("%5d \t%-20s \t%-20s \t%5s %8.0f\n", $i, $lastname, $firstname, $batiment, $general) ;
 			$generalSum += $general ;
 			$i++ ;
 			}
-		printf ("\033[1mGeneral %8.0lf\033[0m\n\n", $generalSum) ;
+		printf ("\033[1mGeneral %8.0lf/%-6.0lf %8.2lf%%\033[0m\n\n", 
+			$meeting['presentsGeneralSum'],
+			$meeting['presentsGeneralSum']+$meeting['absentsGeneralSum'],
+			$meeting['presentsGeneralSum']/($meeting['presentsGeneralSum']+$meeting['absentsGeneralSum']) * 100.0 ) ;
 		
 		foreach ($meeting["presentsByBatData"] as $batiment => $owners )
 			{
-			printf("\033[1mBatiment %s \033[0m (présents ou représentés)\n", $batiment) ;
+			printf("\033[1mBatiment %s \033[0m (%d présents ou représentés sur %d copropriétaires, soit %.2f %%) \n", 
+				$batiment,
+				count($meeting['presentsByBatData'][$batiment]),
+				count($meeting['presentsByBatData'][$batiment]) + count($meeting['absentsByBatData'][$batiment]),
+				count($meeting['presentsByBatData'][$batiment])
+					/(count($meeting['presentsByBatData'][$batiment]) + count($meeting['absentsByBatData'][$batiment])) 
+					* 100.0
+				) ;
 			$i = 1 ;
-			$specialSum = 0 ;
 			foreach ($owners as $pseudo => $ownerData)
 				{
-				$lastname = $ownerData["lastname"] ;
-				$firstname = $ownerData["firstname"] ;
-				$special = $ownerData["lotData"]["special"] ;
+				$lastname  = $ownerData['lastname'] ;
+				$firstname = $ownerData['firstname'] ;
+				$special   = $ownerData['lotData']['imputations']["special$batiment"] ; 
 				printf ("%5d \t%-20s \t%-20s \t%5s %8.0f\n", $i, $lastname, $firstname, $batiment, $special) ;
-				$specialSum += $special ;
 				$i++ ;
 				}
-			printf ("\033[1mSpécial %8.0lf\033[0m\n\n", $specialSum) ;
+			printf ("\033[1mSpécial\033[0m %8.0lf/%-6.0lf, soit %5.2f %%\n\n", 
+				$meeting['presentSpecialSum'][$batiment],
+				$meeting['presentSpecialSum'][$batiment] + $meeting['absentSpecialSum'][$batiment],
+				$meeting['presentSpecialSum'][$batiment] / ($meeting['presentSpecialSum'][$batiment] + $meeting['absentSpecialSum'][$batiment]) * 100.0
+				) ;
 			}
 
 		$i = 1 ;
 		$generalSum = 0 ;
-		printf("\033[1mCopropriété \033[0m (absents)\n") ;
+		printf("\033[1mCopropriété \033[0m (%d absents sur %d copropriétaires (%.2f %%)\n",
+			$meeting['absentsCount'],
+			$meeting['presentsCount']+$meeting['absentsCount'],
+			$meeting['absentsCount']/($meeting['presentsCount']+$meeting['absentsCount']) * 100.0
+			) ;
+
 		foreach ($meeting["absentsData"] as $pseudo=> $ownerData)
 			{
 			$lastname = $ownerData["lastname"] ;
@@ -173,27 +237,40 @@ include_once "ResolutionsController.php" ;
 			$generalSum += $general ;
 			$i++ ;
 			}
-		printf ("\033[1mGeneral %8.0lf\033[0m\n\n", $generalSum) ;
+		printf ("\033[1mGeneral %8.0lf/%-6.0lf %8.2lf%%\033[0m\n\n", 
+			$meeting['absentsGeneralSum'],
+			$meeting['presentsGeneralSum']+$meeting['absentsGeneralSum'],
+			$meeting['absentsGeneralSum']/($meeting['presentsGeneralSum']+$meeting['absentsGeneralSum']) * 100.0 ) ;
 
 
 		foreach ($meeting["absentsByBatData"] as $batiment => $owners )
 			{
-			printf("\033[1mBatiment %s \033[0m (absents)\n", $batiment) ;
+			printf("\033[1mBatiment %s \033[0m (%d absents sur %d copropriétaires, soit %.2f %%) \n", 
+				$batiment,
+				count($meeting['absentsByBatData'][$batiment]),
+				count($meeting['presentsByBatData'][$batiment]) + count($meeting['absentsByBatData'][$batiment]),
+				count($meeting['absentsByBatData'][$batiment])
+					/(count($meeting['presentsByBatData'][$batiment]) + count($meeting['absentsByBatData'][$batiment])) 
+					* 100.0
+				) ;
+
 			$i = 1 ;
-			$specialSum = 0 ;
 			foreach ($owners as $pseudo => $ownerData)
 				{
 				$lastname = $ownerData["lastname"] ;
 				$firstname = $ownerData["firstname"] ;
-				$special = $ownerData["lotData"]["special"] ;
+				$special = $ownerData["lotData"]['imputations']["special$batiment"] ;
 				printf ("%5d \t%-20s \t%-20s \t%5s %8.0f\n", $i, $lastname, $firstname, $batiment, $special) ;
-				$specialSum += $special ;
 				$i++ ;
 				}
-			printf ("\033[1mSpécial\033[0m %8.0lf\n\n", $specialSum) ;
+			printf ("\033[1mSpécial\033[0m %8.0lf/%-6.0lf, soit %5.2f %%\n\n", 
+				$meeting['absentSpecialSum'][$batiment],
+				$meeting['presentSpecialSum'][$batiment] + $meeting['absentSpecialSum'][$batiment],
+				$meeting['absentSpecialSum'][$batiment] / ($meeting['presentSpecialSum'][$batiment] + $meeting['absentSpecialSum'][$batiment]) * 100.0
+				) ;
 			}
 			
-//		print_r ($meeting["absentsByBatData"])	;
+		//print_r ($meeting["absentsByBatData"])	;
 		}
 		
 	public function displayResolutions ()
