@@ -1,12 +1,14 @@
 <?php
+namespace Gerco\Data ;
 
-#=============================================================================
-	class AccountingPlanController extends HashController
-#=============================================================================
+use Gerco\Data\DataObjects;
+
+    class AccountingPlan extends DataObjects
 {
 	public function __construct ()
 		{
-		$this -> setPrimaryKey ("code") ;
+            parent::__construct() ;
+            $this -> setPrimaryKey ("code") ;
 		}
 
 	public function display ()
@@ -41,9 +43,9 @@
 		return $account["label"] ;
 		}
 	
-	public function createOwnersAccount ($ownersController)	
+	public function createOwnersAccount ($owners)
 		{
-		foreach ($ownersController->getObjects() as $ownerKey => $ownerData)
+		foreach ($owners->getObjects() as $ownerKey => $ownerData)
 			{
 //			print_r ($ownerData) ;
 			$syndicCode = $ownerData["syndicCode"] ;

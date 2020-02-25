@@ -7,46 +7,47 @@
 *	@author Régis THIERY
 */
 
+namespace Gerco\Data ;
 
-include_once "ResolutionsController.php" ;
 
+use Gerco\Data\DataObjects;
+use Gerco\Data\Resolutions;
 
-#=============================================================================
-	class GeneralMeetingController extends HashController
-#=============================================================================
+class GeneralMeetings extends DataObjects
 {
 
-	protected $ownersController ;
-	protected $lotsController ;
+	protected $owners ;
+	protected $lots ;
 	
-	protected $resolutionsController ;
+	protected $resolutions ;
 	protected $meetingIndex ;
 	protected $meeting ;
 	
 	public function __construct ()
 		{
-		$this->setPrimaryKey("index") ;
-		$this->resolutionsController = new ResolutionsController ;
-		$this->resolutionsController -> setGeneralMeetingController ($this) ;
+            parent::__construct() ;
+            $this->setPrimaryKey("index") ;
+		$this->resolutions = new Resolutions() ;
+		$this->resolutions -> setGeneralMeetings ($this) ;
 		}
 		
 		/**
 		*	@return void
 		*/
-	public function setOwnersController ($ownersController)	
+	public function setOwners ($owners)
 		{
-		$this -> ownersController = $ownersController ;
-		$this -> resolutionsController -> setOwnersController ($ownersController) ;
+		$this -> owners = $owners ;
+		$this -> resolutions -> setOwners ($owners) ;
 		}
 
-	public function setLotsController ($lotsController)	
+	public function setLots ($lots)
 		{
-		$this -> lotsController = $lotsController ;
+		$this -> lots = $lots ;
 		}
 		
-	public function setImputationsController ($imputationsController)	
+	public function setImputations ($imputations)
 		{
-		$this->resolutionsController -> setImputationsController ($imputationsController) ;
+		$this->resolutions -> setImputations ($imputations) ;
 		}
 		
 	public function setMeetingIndex ($index)	
@@ -54,7 +55,7 @@ include_once "ResolutionsController.php" ;
 		$this->meetingIndex = $index ;
 		$this->meeting = $this->getObjectWithKey ($this->meetingIndex) ;
 		$filename = $this->meeting["resolutionsFileName"] ;
-		$this->resolutionsController -> readFile ("../00-data/$filename") ;
+		$this->resolutions -> readFile ("../00-data/$filename") ;
 		}
 		
 	public function getMeeting ()	
@@ -77,14 +78,13 @@ include_once "ResolutionsController.php" ;
 		$presentSpecialSum = array () ;
 		foreach ($meeting["presents"] as $i => $pseudo)
 			{
-			$owner = $this->ownersController -> getObjectWithKeyValue ("pseudo", $pseudo) ;
+			$owner = $this->owners-> getObjectWithKeyValue ("pseudo", $pseudo) ;
 			if ( $owner == NULL )
 				{
 				print ('There are no data for the owner \"$pseudo\" \n') ;
 				}
 			else
 				{
-				print_r($owner) ;
 				$batiment                    = $owner['lotData']['batiment'] ;
 				$special                     = $owner['lotData']['imputations']["special$batiment"] ;
 				$owner['lotData']['special'] = $special ;
@@ -113,7 +113,7 @@ include_once "ResolutionsController.php" ;
 		$absentGeneralSum = 0 ;
 		$absentSpecialSum = array () ;
 		
-		foreach ($this->ownersController->getObjects() as $ownerKey => $ownerData)
+		foreach ($this->owners->getObjects() as $ownerKey => $ownerData)
 			{
 			$pseudo = $ownerData["pseudo"] ;
 			if ( array_key_exists("closed", $ownerData) && $ownerData["closed"]==="yes" )
@@ -276,17 +276,17 @@ include_once "ResolutionsController.php" ;
 	public function displayResolutions ()
 		{
 		$meeting = $this->meeting ;
-		$this->resolutionsController -> displayResolutions () ;
+		$this->resolutions -> displayResolutions () ;
 		}	
 		
 		
 	public function calculateVotingResults ()	
 		{
-		$this->resolutionsController -> calculateVotingResults () ;
+		$this->resolutions -> calculateVotingResults () ;
 		}
 
 	public function displayVotingResults ()	
 		{
-		$this->resolutionsController -> displayVotingResults () ;
+		$this->resolutions -> displayVotingResults () ;
 		}
 }

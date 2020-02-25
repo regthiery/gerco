@@ -1,26 +1,29 @@
 <?php
 
-#=============================================================================
-	class AccountingExercisesController extends HashController
-#=============================================================================
+namespace Gerco\Data ;
+
+use Gerco\Data\DataObjects;
+
+    class AccountingExercises extends DataObjects
 {
 
-	protected $accountingPlanController ;
-	protected $imputationsController ;
+	protected $accountingPlan ;
+	protected $imputations ;
 
 	public function __construct ()
 		{
-		$this->setPrimaryKey("exercise") ;
+            parent::__construct() ;
+            $this->setPrimaryKey("exercise") ;
 		}
 		
-	public function setAccountingPlanController (&$accountingPlanController)	
+	public function setAccountingPlan ($accountingPlan)
 		{
-		$this->accountingPlanController = $accountingPlanController ;
+		$this->accountingPlan = $accountingPlan ;
 		}
 
-	public function setImputationsController (&$imputationsController)	
+	public function setImputations ($imputations)
 		{
-		$this->imputationsController = $imputationsController ;
+		$this->imputations = $imputations ;
 		}
 		
 
@@ -39,7 +42,7 @@
 					print ("AccountingExercises:calculateImputations : this account $accountKey has already been defined.\n") ;
 					return ;
 					}
-				$label = $this->accountingPlanController->getObjectWithKey($accountKey)["label"] ;
+				$label = $this->accountingPlan->getObjectWithKey($accountKey)["label"] ;
 				
 				$item = preg_replace('/\s\s+/', ' ' , $item) ;
 				$imputationsArray = explode( ' ', $item ) ;
@@ -83,14 +86,13 @@
 				$sum += $accountData["value"] ;
 				}
 			$imputations[$imputationCode]["total"] = $sum ;
-			$imputation = $this->imputationsController->getObjectWithKey($imputationCode) ;
+			$imputation = $this->imputations->getObjectWithKey($imputationCode) ;
 			$imputationIndex = $imputation["index"] ;
 			$imputations[$imputationCode]["index"] = $imputationIndex ;
 			}
 		
 		$this->objects[$e]["accounts"] = $accounts ;
 		$this->objects[$e]["imputations"] = $imputations ;
-		
 		}
 
 
@@ -106,7 +108,7 @@
 				
 		foreach ( $imputations as $imputationKey => $imputationData)
 			{
-			printf ("\033[1;38,5m%-60s (%s)\033[0m\n", $this->imputationsController->getObjectWithKey($imputationKey)["label"], $imputationKey) ;
+			printf ("\033[1;38,5m%-60s (%s)\033[0m\n", $this->imputations->getObjectWithKey($imputationKey)["label"], $imputationKey) ;
 			$accountsList = $imputationData["accounts"] ;
 			foreach ($accountsList as $accountCode => $accountData)
 				{

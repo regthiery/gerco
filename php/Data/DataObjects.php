@@ -1,21 +1,28 @@
 <?php
 
-#===============================================================================
-	class HashController
-#===============================================================================
+namespace Gerco\Data ;
+
+include_once "Logger/DataLogger.php" ;
+use Gerco\Logger\DataLogger;
+
+	class DataObjects
 {
-	protected $filename ;
-	protected $objects ;
-	protected $filteredObjects ;
-	protected $objectsCount ;
-	protected $filteredCount ;
-	protected $primaryKey ;
-	protected $sums ;
-	protected $objectsKeys ;
+	public string $filename ;
+	public array $objects ;
+	public array $filteredObjects ;
+	public array $selectedObject ;
+	public int $objectsCount ;
+	public int $filteredCount ;
+	public string $primaryKey ;
+	public array $sums ;
+	public array $objectsKeys ;
+	public DataLogger $logger ;
 	
 	public function __construct ()
 		{
+		$this->logger = new DataLogger($this) ;
 		}
+		
 	public function setPrimaryKey ($primaryKey)
 		{
 		$this->primaryKey = $primaryKey ;
@@ -42,6 +49,14 @@
 			}	
 		}
 
+	public function selectObject($index) {
+	    $this->selectedObject = $this->objects[$index] ;
+    }
+
+    public function getSelectedObject() : array {
+	    return $this->selectedObject ;
+    }
+
 	public function getFilteredWithKey ($key)	
 		{
 		if (array_key_exists($key,$this->filteredObjects))
@@ -67,6 +82,15 @@
 			}
 		return NULL ;	
 		}
+
+
+		public function convertDateToEng ($date) : string
+        {
+            @list ($day,$month,$year) = explode ('/', $date) ;
+            $date0 =  date ('Y-m-d', mktime(0,0,0,$month,$day,$year)) ;
+            return $date0 ;
+        }
+
 	
 	public function setFileName ($filename)	
 		{
@@ -79,12 +103,16 @@
 		$this->objects = array () ;
 		
 		$primaryLabel = ucfirst($this->primaryKey) ;
+		$primaryValue = NULL ;
 		
-		//print ("HashController readFile $filename $primaryLabel \n") ;
-
 		$this->setFileName ($filename) ;
+            if ( ! file_exists($filename)) {
+                printf ("Error: cannot open %s file \n.", $filename) ;
+                return $this ;
+            }
+
 		$txt = file($this->filename) ;
-				
+
 		foreach ($txt as $line)
 			{
 			if (! preg_match ('/^#/', $line ) )
@@ -131,8 +159,15 @@
 					}
 				elseif ( $new == 1 )	
 					{
-					$this->objects [$primaryValue] = $object ;
+					    if (isset($primaryValue) && isset($object)) {
+                            $this->objects [$primaryValue] = $object ;
+                        }
+					    else {
+					        print("Erreur de lecture du fichier $filename: aucune valeur définie pour la clé $primaryLabel\n") ;
+                        }
+
 					$new = 0 ;
+					    unset($primaryValue) ;
 					}
 				}
 			}
@@ -142,69 +177,14 @@
 
 		$this->objectsKeys = array_keys($this->objects) ;
 
+		$this->logger->printf("Read file %s\n",$filename) ;
+		$this->logger->displayCount() ;
 		return $this ;
 		}
 		
-	public function displayData (...$keys)
+	public function joinWithData (DataObjects $dataObject, $primaryKey, $objectKey)
 		{
-		$i = 1 ;
-		$primaryLabel = ucfirst ($this->primaryKey) ;
-		printf ("\033[1m\t%4s %8s %18s ", "#", "-", " ") ;
-		foreach ($keys as $key0)
-			{
-			printf ( "%-25s\t", $key0) ;
-			}
-		printf ("\033[0m\n") ;
-		foreach ( $this->filteredObjects as $key => $value )
-			{
-			$objectPrimaryValue = $this->filteredObjects[$key][$this->primaryKey] ;
-			printf ("\t%4d) %-8s %-8s ", $i, $primaryLabel, $objectPrimaryValue ) ;
-			
-			foreach ($keys as $key0)
-				{
-				$keys1 = preg_split("/:/",$key0) ;
-				
-				$n = count($keys1) ;
-				if ( $n == 1 )
-					{
-					$key00 = $keys1 [0] ;
-					$value = (array_key_exists($key0,$this->filteredObjects[$key])) ? $this->filteredObjects[$key][$key0] : "" ;
-					}
-				elseif ( $n == 2 )	
-					{
-					$key00 = $keys1 [0] ;
-					$key01 = $keys1 [1] ;
-					if (! array_key_exists($key00, $this->filteredObjects[$key]))
-						{
-						$value = "" ;
-						}
-					else
-						{
-						$value = (array_key_exists($key01,$this->filteredObjects[$key][$key00])) ? $this->filteredObjects[$key][$key00][$key01] : "" ;
-						}	
-					}
-
-				if ( is_array($value))
-					{
-					$values = implode ("    ", $value) ;
-					printf ("  : %-20s\t", $values) ;
-					}
-				else
-					{
-					printf (" : %-25s\t", $value) ;
-					}
-				}
-			printf("\n") ;
-			
-			$i ++ ;
-			}
-		return $this ;	
-		}
-	
-	
-	public function joinWithData (HashController &$hashController, $primaryKey, $objectKey)
-		{
-		$objectsData = $hashController -> getObjects () ;
+		$objectsData = $dataObject -> getObjects () ;
 
 		foreach ($this->objects as $key => $item )
 			{
@@ -222,28 +202,15 @@
 			}
 		}
 	
-	public function getCount ()
+	public function getCount () : int
 		{
 		return $this -> objectsCount ;
 		}
 		
-	public function getFilteredCount ()	
+	public function getFilteredCount ()	: int
 		{
 		return $this->filteredCount ;
 		}
-		
-	public function displayCount ()
-		{
-		printf ("%5d %s\n", $this->objectsCount, $this->primaryKey) ;
-		return $this ;
-		}
-		
-	public function displayFilteredCount ()
-		{
-		printf ("%5d selected items\n", $this->filteredCount) ;
-		return $this ;
-		}
-			
 
 	public function unselect ()
 		{
@@ -257,7 +224,59 @@
 		$this->filteredObjects = $this->objects ;
 		$this->filteredCount = $this->objectsCount ;
 		return $this ;
-		}			
+		}
+
+	public function getKeyValue ($object,$key)
+    {
+        $keys = preg_split("/:/",$key) ;
+        $n = count($keys) ;
+        if ( $n == 1 )
+        {
+            if ( ! (array_key_exists($key,$object)) )
+            {
+                return NULL ;
+            }
+            $value = $object[$key] ;
+        }
+        elseif ( $n == 2 )
+        {
+            $key0 = $keys [0] ;
+            $key1 = $keys [1] ;
+            if (! array_key_exists($key0,$object) )
+            {
+                return NULL ;
+            }
+            if (! array_key_exists($key1,$object[$key0]) )
+            {
+                return NULL ;
+            }
+            $value = $object[$key0][$key1] ;
+        }
+        elseif ( $n == 3 )
+        {
+            $key0 = $keys [0] ;
+            $key1 = $keys [1] ;
+            $key2 = $keys [2] ;
+            if (! array_key_exists($key0,$object) )
+            {
+                return NULL ;
+            }
+            if (! array_key_exists($key1,$object[$key0]) )
+            {
+                return NULL ;
+            }
+            if (! array_key_exists($key2,$object[$key0][$key1]) )
+            {
+                return NULL ;
+            }
+            $value = $object[$key0][$key1][$key2] ;
+        }
+        else
+        {
+            $value = '' ;
+        }
+     return $value ;
+    }
 		
 	public function selectByKey ($operator, $key0, $value0)
 		{
@@ -265,31 +284,7 @@
 			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
 			function ($item) use($key0, $value0)
 				{
-				$keys1 = preg_split("/:/",$key0) ;
-				$n = count($keys1) ;
-				if ( $n == 1 )
-					{
-					$key00 = $keys1 [0] ;
-					if ( ! (array_key_exists($key0,$item)) )
-						{
-						return false ;
-						}
-					$value = $item[$key0] ;
-					}
-				elseif ( $n == 2 )	
-					{
-					$key00 = $keys1 [0] ;
-					$key01 = $keys1 [1] ;
-					if (! array_key_exists($key00,$item) )
-						{
-						return false ;
-						}
-					if (! array_key_exists($key01,$item[$key00]) )
-						{
-						return false ;
-						}
-					$value = $item[$key00][$key01] ;
-					}
+				$value = $this->getKeyValue ($item, $key0) ;
 
 				return (!strcmp($value,$value0)) ;
 				} 
@@ -309,42 +304,18 @@
 		
 	public function selectBetweenDates ($operator,$key0,$startDate, $endDate)	
 		{
+		    $startDateEng = $this->convertDateToEng($startDate) ;
+		    $endDateEng = $this->convertDateToEng($endDate) ;
 		$array = array_filter (
 			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
-			function ($item) use($key0, $startDate, $endDate)
+			function ($item) use($key0, $startDateEng, $endDateEng)
 				{
-				$keys1 = preg_split("/:/",$key0) ;
-				$n = count($keys1) ;
-				if ( $n == 1 )
-					{
-					$key00 = $keys1 [0] ;
-					if ( ! (array_key_exists($key0,$item)) )
-						{
-						return false ;
-						}
-					$key0 .= "Eng" ;
-					$value = $item[$key0] ;
-					}
-				elseif ( $n == 2 )	
-					{
-					$key00 = $keys1 [0] ;
-					$key01 = $keys1 [1] ;
-					if (! array_key_exists($key00,$item) )
-						{
-						return false ;
-						}
-					if (! array_key_exists($key01,$item[$key00]) )
-						{
-						return false ;
-						}
-					$key01 .= "Eng" ;
-					$value = $item[$key00][$key01] ;
-					}
+				$value=$this->getKeyValue($item,$key0."Eng") ;
 
-				$res = strcmp ($startDate, $value) ;
+				$res = strcmp ($startDateEng, $value) ;
 				if ( $res > 0 )
 					{ return false ; }
-				$res = strcmp ($endDate, $value) ;
+				$res = strcmp ($endDateEng, $value) ;
 				if ( $res < 0 )
 					{ return false ; }
 				
@@ -370,39 +341,24 @@
 			(!strcmp($operator,"and")) ? $this->filteredObjects : $this->objects ,
 			function ($item) use($key0, $pattern)
 				{
-				$keys1 = preg_split("/:/",$key0) ;
-				$n = count($keys1) ;
-				if ( $n == 1 )
-					{
-					$key00 = $keys1 [0] ;
-					if ( ! (array_key_exists($key0,$item)) )
-						{
-						return false ;
-						}
-					$value = $item[$key0] ;
-					}
-				elseif ( $n == 2 )	
-					{
-					$key00 = $keys1 [0] ;
-					$key01 = $keys1 [1] ;
-					if (! array_key_exists($key00,$item) )
-						{
-						return false ;
-						}
-					if (! array_key_exists($key01,$item[$key00]) )
-						{
-						return false ;
-						}
-					$value = $item[$key00][$key01] ;
-					}
+				$value = $this->getKeyValue($item,$key0) ;
 
-				return ( preg_match($pattern,$value) ) ;
+                    if ( $value == NULL )
+                        return FALSE ;
+
+                    $res =  preg_match($pattern,$value) ;
+                    //return ( preg_match($pattern,$value) ) ;
+                    return $res ;
 				} 
 			) ;
 		if (!strcmp ($operator,"or"))	
 			{
 			$this->filteredObjects = array_merge ($this->filteredObjects, $array) ;
 			}
+		elseif ( $operator === 'andNot' )
+        {
+            $this->filteredObjects =  array_diff_assoc($this->filteredObjects, $array) ;
+        }
 		else
 			{
 			$this->filteredObjects = $array ;
@@ -439,8 +395,23 @@
 
 		return $this ;
 		}
-		
-	public function sortNumeric ($key0)
+
+        public function sortLiteral ($key0)
+        {
+            uasort ($this->filteredObjects,
+                function ($a,$b) use ($key0)
+                {
+                    if ( ! array_key_exists($key0,$a) )
+                    { return -1 ; }
+                    if ( ! array_key_exists($key0,$b) )
+                    { return 1 ; }
+                    return (!strcmp($a[$key0], $b[$key0])) ;
+                }
+            ) ;
+            return $this ;
+        }
+
+        public function sortNumeric ($key0)
 		{
 		uasort ($this->filteredObjects, 
 			function ($a,$b) use ($key0)
@@ -492,24 +463,14 @@
 			$this->sums[$key0] = 0 ;
 			foreach ($this->filteredObjects as $key => $object)
 				{
-				if ( array_key_exists ($key0,$object))
-					{
-					$this->sums[$key0] += $object[$key0] ;
-					}
+				$value = $this->getKeyValue($object,$key0) ;
+				if ( $value != NULL )
+                    $this->sums[$key0] += $value ;
 				}
 			}
 		return $this ;	
 		}
-	
-	public function displaySums (...$keys)	
-		{
-		foreach ($keys as $key0)
-			{
-			printf ("Sum %s : %8.2f \n", $key0, $this->sums[$key0]) ;
-			}
-		return $this ;	
-		}
-		
+
 	public function getSum($key0)
 		{
 		return $this->sums[$key0] ;

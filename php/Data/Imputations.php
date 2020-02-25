@@ -1,35 +1,38 @@
 <?php
 
-#=============================================================================
-	class ImputationsController extends HashController
-#=============================================================================
+namespace Gerco\Data ;
+use Gerco\Data\DataObjects;
+
+
+	class Imputations extends DataObjects
 {
-	protected $invoicesController ;
-	protected $accountingPlanController ;
+	protected $invoices ;
+	protected $accountingPlan ;
 	
 	public function __construct ()
 		{
-		$this->setPrimaryKey ("code") ;
+            parent::__construct() ;
+            $this->setPrimaryKey ("code") ;
 		}
 		
-	public function setInvoicesController ($invoicesController)	
+	public function setInvoices ($invoices)
 		{
-		$this->invoicesController = $invoicesController ;
+		$this->invoices = $invoices ;
 		}
 		
-	public function setAccountingPlanController ($accountingPlanController)	
+	public function setAccountingPlan ($accountingPlan)
 		{
-		$this->accountingPlanController = $accountingPlanController ;
+		$this->accountingPlan = $accountingPlan ;
 		}
 		
 	public function setAccountingYear ($startDate, $endDate)	
 		{
-		$invoicesController -> selectBetweenDates ("and", "dateEng", $startDate, $endDate) ;
+		$this->invoices -> selectBetweenDates ("and", "dateEng", $startDate, $endDate) ;
 		}
 		
-	public function createOwnersKeys ($ownersController)	
+	public function createOwnersKeys ($owners)
 		{
-		foreach ($ownersController->getObjects() as $ownerKey => $ownerData)
+		foreach ($owners->getObjects() as $ownerKey => $ownerData)
 			{
 			//print_r ($ownerData) ;
 			$lastname = $ownerData ["lastname"] ;
@@ -49,7 +52,7 @@
 			
 			$this->objects[$imputationKey]["invoices"] = array () ;
 			
-			foreach ($this->invoicesController->getFiltered() as $invoiceKey => $invoice )
+			foreach ($this->invoices->getFiltered() as $invoiceKey => $invoice )
 				{
 				if ( ! array_key_exists ("calculatedImputations", $invoice))
 					{
@@ -72,7 +75,7 @@
 			foreach ($invoices as $invoiceKey => $invoiceData)	
 				{
 				$accountCode = $invoiceData["accountCode"] ;
-				$invoice = $this->invoicesController -> getFilteredWithKey ($invoiceKey) ;
+				$invoice = $this->invoices -> getFilteredWithKey ($invoiceKey) ;
 
 				if ( ! array_key_exists ($accountCode,$accounts) )
 					$accounts[$accountCode] = array () ;
@@ -124,11 +127,11 @@
 			printf ("\n\033[1;38;5;4m%-30s\033[0m\n",  $imputation["label"]) ;
 			foreach ( $imputation["accounts"] as $accountCode => $accountData)
 				{
-				$accountLabel = $this->accountingPlanController->objects[$accountCode]["label"] ;
+				$accountLabel = $this->accountingPlan->objects[$accountCode]["label"] ;
 				printf ("\033[1m\t%10d : %-32s\033[0m\n", $accountCode, $accountLabel) ;
 				foreach ( $accountData["invoicesKeys"] as $invoiceKey )
 					{
-					$invoice = $this->invoicesController->filteredObjects[$invoiceKey] ;
+					$invoice = $this->invoices->filteredObjects[$invoiceKey] ;
 					$imputationValue = $invoice["calculatedImputations"][$imputationKey] ;
 					
 					

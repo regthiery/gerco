@@ -1,30 +1,32 @@
 <?php
 
+namespace Gerco\Data ;
 
-#=============================================================================
-	class ResolutionsController extends HashController
-#=============================================================================
+use Gerco\Data\DataObjects;
+
+class Resolutions extends DataObjects
 {
-	protected $imputationsController ;
-	protected $ownersController ;
-	protected $generalMeetingController ;
+	protected $imputations ;
+	protected $owners ;
+	protected $generalMeetings ;
 	
 	public function __construct ()
 		{
+		    parent::__construct();
 		$this->setPrimaryKey("resolution") ;
 		}
 
-	public function setImputationsController ($imputationsController)
+	public function setImputations ($imputations)
 		{
-		$this->imputationsController = $imputationsController ;
+		$this->imputations = $imputations ;
 		}
-	public function setOwnersController ($ownersController)	
+	public function setOwners ($owners)
 		{
-		$this->ownersController = $ownersController ;
+		$this->owners = $owners ;
 		}
-	public function setGeneralMeetingController ($generalMeetingController)	
+	public function setGeneralMeetings ($generalMeetings)
 		{
-		$this->generalMeetingController = $generalMeetingController ;
+		$this->generalMeetings = $generalMeetings ;
 		}
 		
 	public function displayResolutions ()
@@ -64,18 +66,18 @@
 			$imputationKey = $resolution["key"] ;
 		else
 			{
-			print ("La clé de répartion $imputationKey n'est pas définie pour la résolution n°$resolutionIndex\n") ;
+			print ("La clé de répartion n'est pas définie pour la résolution n°$resolutionIndex\n") ;
 			return ;
 			}
 				
-		$imputation = $this->imputationsController -> getObjectWithKey ($imputationKey) ;
+		$imputation = $this->imputations -> getObjectWithKey ($imputationKey) ;
 		if ( $imputation == NULL )
 			{
 			print ("La clé de répartion $imputationKey n'est pas définie pour la résolution n°$resolutionIndex.\n") ;
 			return ;
 			}
 		
-		$registered    = array() ;
+		$registered    = array () ;
 		$unrepresented = array () ;
 		$yes           = array () ;
 		$no            = array () ;
@@ -89,7 +91,7 @@
 		$sumNo            = 0 ;
 		$sumAbs           = 0 ;
 
-		$meeting = $this->generalMeetingController->getMeeting() ;
+		$meeting = $this->generalMeetings->getMeeting() ;
 		$presents = $meeting["presentsData"] ;
 		$presentsKeys = array_keys ($presents) ;
 		
@@ -116,7 +118,7 @@
 		if ( count ($abstention ) == 0 )
 		       $abstention = array_diff ($presentsKeys, $inFavour, $against) ;
 
-		foreach ( $this->ownersController->getObjects() as $ownerKey => $ownerData)
+		foreach ( $this->owners->getObjects() as $ownerKey => $ownerData)
 			{
 			if ( array_key_exists("closed", $ownerData) )
 				continue ;
@@ -218,7 +220,7 @@
 		else
 			return ;
 
-		$imputation = $this->imputationsController -> getObjectWithKey ($imputationKey) ;
+		$imputation = $this->imputations -> getObjectWithKey ($imputationKey) ;
 		if ( $imputation == NULL )
 			return ;
 		$imputationLabel = $imputation["label"] ;
