@@ -6,7 +6,7 @@ use Gerco\Data\DataObject;
 
 class Logger
 {
-public DataObject $object ;
+    public DataObject $object;
 
     public function __construct(DataObject $dataObject)
     {
@@ -42,19 +42,21 @@ public DataObject $object ;
             } else {
                 printf($formats[$k], $value);
 
-            printf("\n");
+                printf("\n");
             }
             ++$k;
         }
         printf("\n");
     }
 
-    public function print($text) {
-        print ($text) ;
+    public function print($text)
+    {
+        print ($text);
     }
 
-    public function printf($format, ...$params) {
-        printf ($format,...$params) ;
+    public function printf($format, ...$params)
+    {
+        printf($format, ...$params);
     }
 }
 

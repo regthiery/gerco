@@ -81,7 +81,7 @@ class Condominium extends DataObject
     public function getAccountingYearDates($year0) : array
     {
         if ( ! array_key_exists ($year0, $this->data['accountingYear']))
-            $this->logger->print("Erreur: l'exercice comptable $accountingYear n'est pas défini.\n") ;
+            $this->logger->print("Erreur: l'exercice comptable $year0 n'est pas défini.\n") ;
         $year = $this->data['accountingYear'][$year0] ;
         if (preg_match("/(\d{4})-(\d{4})/",$year,$matches))
         {
@@ -186,14 +186,16 @@ class Condominium extends DataObject
                 break ;
             case 'accountStatement' :
                 $year = $params[0] ;
-                list($startDate,$endDate) = $this->getAccountingYearDates($year) ;
-                $this->invoices -> selectAll () ;
-                $this->invoices -> selectBetweenDates ("and","date",$startDate, $endDate) ;
-                $this->invoices -> calculateImputations () ;
-                $this->invoices -> checkWithAccountingPlan ($this->accountingPlan) ;
-                $this->invoices -> displayInvoicesList () ;
-                $this->imputations -> makeAccountStatement () ;
-                $this->imputations -> displayAccountStatement () ;
+                if (isset($year)) {
+                    list($startDate,$endDate) = $this->getAccountingYearDates($year) ;
+                    $this->invoices -> selectAll () ;
+                    $this->invoices -> selectBetweenDates ("and","date",$startDate, $endDate) ;
+                    $this->invoices -> calculateImputations () ;
+                    $this->invoices -> checkWithAccountingPlan ($this->accountingPlan) ;
+                    $this->invoices -> displayInvoicesList () ;
+                    $this->imputations -> makeAccountStatement () ;
+                    $this->imputations -> displayAccountStatement () ;
+                }
                 break ;
             case 'exercise' :
                 $year = $params[0] ;
@@ -219,22 +221,6 @@ class Condominium extends DataObject
         }
     }
 }
-    /*
-        elseif ( $argv[1] === "suppliers")
-        {
-//                $suppliers -> displaySuppliers () ;
-        }
-        elseif ( $argv[1] === "meeting")
-        {
-                          $index = $argv[2] ;
-                          $generalMeetings -> setMeetingIndex ($index) ;
-                          $generalMeetings -> checkAttendance () ;
-                          $generalMeetings -> displayAttendance () ;
-                          $generalMeetings -> displayResolutions () ;
-                          $generalMeetings -> calculateVotingResults () ;
-                          $generalMeetings -> displayVotingResults () ;
-        }
-        */
 
 
 

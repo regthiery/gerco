@@ -1,253 +1,221 @@
 <?php
 
-namespace Gerco\Data ;
+namespace Gerco\Data;
 
-use Gerco\Data\DataObjects;
-
-    class Invoices extends DataObjects
+class Invoices extends DataObjects
 {
-	protected $imputationKeys ;
-	protected $accountingPlan ;
-	
-	
-	public function __construct ()
-		{
-            parent::__construct() ;
-            $this->setPrimaryKey("index") ;
-		}
-		
-	public function calculateImputations ()
-		{
-		foreach ( $this->filteredObjects as $key => $invoice )
-			{
-			$sum = 0 ;
-			if ( array_key_exists ("imputations", $invoice) )
-				{
-				$imputations = $invoice["imputations"] ;
-				$this->filteredObjects[$key]["calculatedImputations"] = array () ;
-				foreach ( $imputations as $key0 => $imputation )
-					{
-					$value = $invoice["value"] ;
+    protected $imputationKeys;
+    protected AccountingPlan $accountingPlan;
 
-					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
-						{
-						$imputationKey = $matches[1] ;
-						$imputationValue = $matches[2] ;
-						
-						if ( preg_match("/(.*)x(.*)/",$imputationValue,$imputationValues) )
-						{
-						    $ncopro = $imputationValues [1] ;
-						    $valueByCopro = $imputationValues [2] ;
-						    $imputationValue = $ncopro * $valueByCopro ;
-						}
 
-						if ( preg_match ("/(.*)\%/", $imputationValue, $percents ))
-							{
-							$percent = $percents[1] ;
-							$this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $value * $percent / 100.0 ;
-							}
-						else
-							{
-							$this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $imputationValue ;
-							}	
-						//printf("Facture %s value %f clé %s somme %f\n", $key, $imputationValue, $imputationKey, $sum) ;
-						$sum += $this->filteredObjects[$key]["calculatedImputations"][$imputationKey] ;
-						}
-					}
-					
-				$res = abs ($invoice["value"] - $sum) ;
-				if ( $res >1e-2 )	
-					{
-					$index = $this->filteredObjects[$key][$this->primaryKey] ;
-					print ("Erreur sur les imputations de la facture $index\n") ;
-					print ("Son montant de $value euros n'est pas égale à la somme des imputations $sum\n") ;
-					print_r ($imputations) ;
-					}
-				}
-			else
-				{
-				print ("Error: no imputation defined for invoice $key !\n") ;
-				}	
-			}
-		}
-		
-	public function calculateImputationKeysList ()		
-		{
-		$this->imputationKeys = array () ;
-		foreach ( $this->objects as $key => $invoice )
-			{
-			if ( array_key_exists ("imputations", $invoice) )
-				{
-				$imputations = $invoice["imputations"] ;
-				foreach ( $imputations as $i => $imputation )
-					{
-					if ( preg_match("/(.*)=>(.*)/", $imputation, $matches) )
-						{
-						$imputationKey = $matches[1] ;
-						$imputationValue = $matches[2] ;
-						if ( array_key_exists ($imputationKey, $this->imputationKeys ) )
-							{
-							$this->imputationKeys [$imputationKey] ++ ;
-							}
-						else
-							{
-							$this->imputationKeys [$imputationKey] = 1 ;
-							}	
-						}
-					}
-				}
-			}
-		ksort ($this->imputationKeys)	;
-		return $this->imputationKeys ;	
-		}
-		
-	public function showInvoices ()
-		{
-		$this -> selectAll () ;
-		$this -> logger->displayData ( "to>10", "date>12", "value>12", "from>20", "object>25", "imputations>25", "info") ;
-		}
-
-	public function getBuildingsListFor($keyword) : array
+    public function __construct()
     {
-        $this -> selectAll () ;
-        $this -> selectByKeyExt ("and", "object", "/$keyword/") ;
+        parent::__construct();
+        $this->setPrimaryKey("index");
+    }
 
-        $batiments = array () ;
+    public function calculateImputations()
+    {
+        foreach ($this->filteredObjects as $key => $invoice) {
+            $sum = 0;
+            if (array_key_exists("imputations", $invoice)) {
+                $imputations = $invoice["imputations"];
+                $this->filteredObjects[$key]["calculatedImputations"] = array();
+                foreach ($imputations as $key0 => $imputation) {
+                    $value = $invoice["value"];
 
-        foreach ($this->filteredObjects as $k => $item)
-            {
-            if (preg_match("/copro\d+/",$item['to']))
-                {
-                if (array_key_exists($item['to'], $batiments))
-                    ++ $batiments[$item['to']] ;
-                else
-                    $batiments[$item['to']] = 1 ;
-                }
-            else
-                {
-                    $matches = preg_split('//',$item['to'],-1,PREG_SPLIT_NO_EMPTY) ;
-                    $n = count($matches) ;
-                    for ( $i=0; $i<$n; $i++)
-                        {
-                        $c = $matches[$i] ;
-                        if (array_key_exists($c, $batiments))
-                            ++ $batiments[$c] ;
-                        else
-                            $batiments[$c] = 1 ;
+                    if (preg_match("/(.*)=>(.*)/", $imputation, $matches)) {
+                        $imputationKey = $matches[1];
+                        $imputationValue = $matches[2];
+
+                        if (preg_match("/(.*)x(.*)/", $imputationValue, $imputationValues)) {
+                            $ncopro = $imputationValues [1];
+                            $valueByCopro = $imputationValues [2];
+                            $imputationValue = $ncopro * $valueByCopro;
                         }
+
+                        if (preg_match("/(.*)\%/", $imputationValue, $percents)) {
+                            $percent = $percents[1];
+                            $this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $value * $percent / 100.0;
+                        } else {
+                            $this->filteredObjects[$key]["calculatedImputations"][$imputationKey] = $imputationValue;
+                        }
+                        //printf("Facture %s value %f clé %s somme %f\n", $key, $imputationValue, $imputationKey, $sum) ;
+                        $sum += $this->filteredObjects[$key]["calculatedImputations"][$imputationKey];
+                    }
+                }
+
+                $res = abs($invoice["value"] - $sum);
+                if ($res > 1e-2) {
+                    $index = $this->filteredObjects[$key][$this->primaryKey];
+                    print ("Erreur sur les imputations de la facture $index\n");
+                    print ("Son montant de $value euros n'est pas égale à la somme des imputations $sum\n");
+                    print_r($imputations);
+                }
+            } else {
+                print ("Error: no imputation defined for invoice $key !\n");
+            }
+        }
+    }
+
+    public function calculateImputationKeysList()
+    {
+        $this->imputationKeys = array();
+        foreach ($this->objects as $key => $invoice) {
+            if (array_key_exists("imputations", $invoice)) {
+                $imputations = $invoice["imputations"];
+                foreach ($imputations as $i => $imputation) {
+                    if (preg_match("/(.*)=>(.*)/", $imputation, $matches)) {
+                        $imputationKey = $matches[1];
+                        // $imputationValue = $matches[2];
+                        if (array_key_exists($imputationKey, $this->imputationKeys)) {
+                            $this->imputationKeys [$imputationKey]++;
+                        } else {
+                            $this->imputationKeys [$imputationKey] = 1;
+                        }
+                    }
                 }
             }
-        ksort($batiments) ;
-        return $batiments ;
+        }
+        ksort($this->imputationKeys);
+        return $this->imputationKeys;
     }
 
-    public function showInvoicesWithKeyword ($keyword)
+    public function showInvoices()
     {
-        $batiments = $this -> getBuildingsListFor($keyword) ;
-        print_r ($batiments) ;
-        foreach ($batiments as $batiment => $count)
-            {
-            $this -> showInvoicesWithKeywordByBatiment($keyword,$batiment) ;
+        $this->selectAll();
+        $this->logger->displayData("to>10", "date>12", "value>12", "from>20", "object>25", "imputations>25", "info");
+    }
+
+    public function getBuildingsListFor($keyword): array
+    {
+        $this->selectAll();
+        $this->selectByKeyExt("and", "object", "/$keyword/");
+
+        $batiments = array();
+
+        foreach ($this->filteredObjects as $k => $item) {
+            if (preg_match("/copro\d+/", $item['to'])) {
+                if (array_key_exists($item['to'], $batiments))
+                    ++$batiments[$item['to']];
+                else
+                    $batiments[$item['to']] = 1;
+            } else {
+                $matches = preg_split('//', $item['to'], -1, PREG_SPLIT_NO_EMPTY);
+                $n = count($matches);
+                for ($i = 0; $i < $n; $i++) {
+                    $c = $matches[$i];
+                    if (array_key_exists($c, $batiments))
+                        ++$batiments[$c];
+                    else
+                        $batiments[$c] = 1;
+                }
             }
+        }
+        ksort($batiments);
+        return $batiments;
     }
 
-    public function showInvoicesWithKeywordByBatiment($keyword,$bat)
+    public function showInvoicesWithKeyword($keyword)
     {
-        $this -> selectAll () ;
-        $this -> selectByKeyExt ("and", "to", "/$bat/") ;
-        $pattern = "/$keyword/" ;
-        $this -> selectByKeyExt ("and", "object", $pattern) ;
-        $this->calculateImputations() ;
-        $this -> sortByDate ("date") ;
-        if (preg_match("/copro/",$bat))
-            $imputationKey = $bat ;
-        else
-            {
-            if ( $keyword === "Electricité" )
-                $imputationKey = "special$bat" ;
-            elseif ($keyword === "Ascenseur" )
-                $imputationKey = "ascenseur$bat" ;
+        $batiments = $this->getBuildingsListFor($keyword);
+        print_r($batiments);
+        foreach ($batiments as $batiment => $count) {
+            $this->showInvoicesWithKeywordByBatiment($keyword, $batiment);
+        }
+    }
+
+    public function showInvoicesWithKeywordByBatiment($keyword, $bat)
+    {
+        $this->selectAll();
+        $this->selectByKeyExt("and", "to", "/$bat/");
+        $pattern = "/$keyword/";
+        $this->selectByKeyExt("and", "object", $pattern);
+        $this->calculateImputations();
+        $this->sortByDate("date");
+        if (preg_match("/copro/", $bat))
+            $imputationKey = $bat;
+        else {
+            if ($keyword === "Electricité")
+                $imputationKey = "special$bat";
+            elseif ($keyword === "Ascenseur")
+                $imputationKey = "ascenseur$bat";
             elseif ($keyword === "Eau") {
-                $imputationKey = "special$bat" ;
+                $imputationKey = "special$bat";
             }
-            }
-        if ( $keyword === "Entretien" ) {
-            $this->sumKeys("calculatedImputations:special$bat", "calculatedImputations:escalier$bat>12") ;
+        }
+        if ($keyword === "Entretien") {
+            $this->sumKeys("calculatedImputations:special$bat", "calculatedImputations:escalier$bat>12");
             $this->logger->displayData("to>10", "date>12", "value>10",
                 "calculatedImputations:special$bat>12",
                 "calculatedImputations:escalier$bat>12",
-                "from>12", "object>20",  "info>20");
+                "from>12", "object>20", "info>20");
             $this->logger->displaySums("calculatedImputations:special$bat",
-                "calculatedImputations:escalier$bat>12") ;
-        }
-        else {
-            $this->sumKeys("calculatedImputations:$imputationKey" ) ;
+                "calculatedImputations:escalier$bat>12");
+        } else {
+            $this->sumKeys("calculatedImputations:$imputationKey");
             $this->logger->displayData("to>10", "date>12", "value>10",
-                "calculatedImputations:$imputationKey>12", "from>12", "object>20",  "info>20");
-            $this->logger->displaySums("calculatedImputations:$imputationKey") ;
+                "calculatedImputations:$imputationKey>12", "from>12", "object>20", "info>20");
+            $this->logger->displaySums("calculatedImputations:$imputationKey");
         }
     }
 
 
-	public function checkWithAccountingPlan (AccountingPlan $accountingPlan)
-		{
-		$this->accountingPlan = $accountingPlan ;
-		//$this->selectAll () ;
+    public function checkWithAccountingPlan(AccountingPlan $accountingPlan)
+    {
+        $this->accountingPlan = $accountingPlan;
+        //$this->selectAll () ;
 
-		$this->sortByDate('date') ;
-		
-		
-		$invoicesCount = $this->filteredCount ;
-		$invoiceIndex = $invoicesCount ;
-		foreach ($this->filteredObjects as $key => $invoice)
-			{
-			$invoiceKey = $invoice["index"] ;
-			$invoiceShortName = $invoice["object"] ;
-			$date = $invoice["date"] ;
-			$accountIndex = $this->accountingPlan -> getAccountIndex ($invoiceShortName) ;
-			$from = $invoice["from"] ;
+        $this->sortByDate('date');
 
-			$accountCode  = $this->accountingPlan -> getAccountCode  ($accountIndex) ;
-			$accountLabel = $this->accountingPlan -> getAccountLabel ($accountIndex) ;
-			
-			
-			$this->filteredObjects[$invoiceKey]["accountCode"]  = $accountCode ;
-			$this->filteredObjects[$invoiceKey]["accountLabel"] = $accountLabel ;
-			$this->filteredObjects[$invoiceKey]["invoiceIndex"] = $invoiceIndex ;
-			
-			$invoiceIndex -- ;
-			}
-		}
-		
-	public function getInvoiceKeyWithIndex ($index)	
-		{
-		foreach ($this->filteredObjects as $key => $data)
-			{
-			if ( $data['invoiceIndex'] == $index )
-				{
-				return $data['index'] ;
-				}
-			}
-		return null ;	
-		}
-		
-	public function displayInvoicesList ()
-		{
-		$invoicesCount = $this->filteredCount ;
-		
 
-		for ( $i=0 ; $i < $invoicesCount ; $i ++ )
-			{
-			$invoiceIndex = $i + 1 ;
-			$invoiceKey = $this->getInvoiceKeyWithIndex ($invoiceIndex) ;
+        $invoicesCount = $this->filteredCount;
+        $invoiceIndex = $invoicesCount;
+        foreach ($this->filteredObjects as $key => $invoice) {
+            $invoiceKey = $invoice["index"];
+            $invoiceShortName = $invoice["object"];
+            //$date = $invoice["date"];
+            $accountIndex = $this->accountingPlan->getAccountIndex($invoiceShortName);
+            //$from = $invoice["from"];
 
-			$invoice = $this->filteredObjects[$invoiceKey] ;
-			$date = $invoice["date"] ;
-			$accountCode = $invoice['accountCode'] ;
-			$from = $invoice['from'] ;
-			$invoiceShortName = $invoice["object"] ;
-			printf ("%12s\t%6d\t%10s\t%-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName) ;
-			}
-		}	
+            $accountCode = $this->accountingPlan->getAccountCode($accountIndex);
+            $accountLabel = $this->accountingPlan->getAccountLabel($accountIndex);
+
+
+            $this->filteredObjects[$invoiceKey]["accountCode"] = $accountCode;
+            $this->filteredObjects[$invoiceKey]["accountLabel"] = $accountLabel;
+            $this->filteredObjects[$invoiceKey]["invoiceIndex"] = $invoiceIndex;
+
+            $invoiceIndex--;
+        }
+    }
+
+    public function getInvoiceKeyWithIndex($index)
+    {
+        foreach ($this->filteredObjects as $key => $data) {
+            if ($data['invoiceIndex'] == $index) {
+                return $data['index'];
+            }
+        }
+        return null;
+    }
+
+    public function displayInvoicesList()
+    {
+        $invoicesCount = $this->filteredCount;
+
+
+        for ($i = 0; $i < $invoicesCount; $i++) {
+            $invoiceIndex = $i + 1;
+            $invoiceKey = $this->getInvoiceKeyWithIndex($invoiceIndex);
+
+            $invoice = $this->filteredObjects[$invoiceKey];
+            $date = $invoice["date"];
+            $accountCode = $invoice['accountCode'];
+            $from = $invoice['from'];
+            $invoiceShortName = $invoice["object"];
+            printf("%12s\t%6d\t%10s\t%-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName);
+        }
+    }
 }		
 		

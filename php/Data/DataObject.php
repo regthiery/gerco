@@ -2,19 +2,17 @@
 
 namespace Gerco\Data;
 
-include_once "Logger/Logger.php" ;
 use Gerco\Logger\Logger;
 
 class DataObject
 {
     public string $filename;
     public Logger $logger;
-    public array $data ;
+    public array $data;
 
     public function __construct()
     {
-        $this->logger = new Logger($this) ;
-
+        $this->logger = new Logger($this);
     }
 
     public function setFileName($filename)
@@ -25,9 +23,9 @@ class DataObject
     public function readFile($filename)
     {
         $this->setFileName($filename);
-        if ( ! file_exists($filename)) {
-            printf ("Error: cannot open %s file \n.", $filename) ;
-            return ;
+        if (!file_exists($filename)) {
+            printf("Error: cannot open %s file \n.", $filename);
+            return $this;
         }
 
         $txt = file($this->filename);
@@ -67,11 +65,10 @@ class DataObject
         return $this;
     }
 
-    public function convertDateToEng ($date) : string
+    public function convertDateToEng($date): string
     {
-        @list ($day,$month,$year) = explode ('/', $date) ;
-        $date0 =  date ('Y-m-d', mktime(0,0,0,$month,$day,$year)) ;
-        return $date0 ;
+        @list ($day, $month, $year) = explode('/', $date);
+        return date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
     }
 }
 
