@@ -1,19 +1,53 @@
 <?php
+/**
+ * Invoices.php
+ *
+ * Classe gérant les factures de la copropriété
+ *
+ * La classe Invoices traite des factures reçues par le syndicat de copropriétaire.
+ *
+ * PHP version 7
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @version  GIT:0.1
+ * @link     http://localhost
+ */
+
 
 namespace Gerco\Data;
 
+/**
+ * Class Invoices
+ *
+ * @package Gerco\Data
+ */
 class Invoices extends DataObjects
 {
+    /**
+     * @var
+     */
     protected $imputationKeys;
+    /**
+     * @var AccountingPlan
+     */
     protected AccountingPlan $accountingPlan;
 
 
+    /**
+     * Invoices constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         $this->setPrimaryKey("index");
     }
 
+    /**
+     *
+     */
     public function calculateImputations()
     {
         foreach ($this->filteredObjects as $key => $invoice) {
@@ -48,16 +82,19 @@ class Invoices extends DataObjects
                 $res = abs($invoice["value"] - $sum);
                 if ($res > 1e-2) {
                     $index = $this->filteredObjects[$key][$this->primaryKey];
-                    print ("Erreur sur les imputations de la facture $index\n");
-                    print ("Son montant de $value euros n'est pas égale à la somme des imputations $sum\n");
+                    print("Erreur sur les imputations de la facture $index\n");
+                    print("Son montant de $value euros n'est pas égale à la somme des imputations $sum\n");
                     print_r($imputations);
                 }
             } else {
-                print ("Error: no imputation defined for invoice $key !\n");
+                print("Error: no imputation defined for invoice $key !\n");
             }
         }
     }
 
+    /**
+     * @return array
+     */
     public function calculateImputationKeysList()
     {
         $this->imputationKeys = array();
@@ -81,12 +118,20 @@ class Invoices extends DataObjects
         return $this->imputationKeys;
     }
 
+    /**
+     *
+     */
     public function showInvoices()
     {
         $this->selectAll();
         $this->logger->displayData("to>10", "date>12", "value>12", "from>20", "object>25", "imputations>25", "info");
     }
 
+    /**
+     * @param $keyword
+     *
+     * @return array
+     */
     public function getBuildingsListFor($keyword): array
     {
         $this->selectAll();
@@ -96,19 +141,21 @@ class Invoices extends DataObjects
 
         foreach ($this->filteredObjects as $k => $item) {
             if (preg_match("/copro\d+/", $item['to'])) {
-                if (array_key_exists($item['to'], $batiments))
+                if (array_key_exists($item['to'], $batiments)) {
                     ++$batiments[$item['to']];
-                else
+                } else {
                     $batiments[$item['to']] = 1;
+                }
             } else {
                 $matches = preg_split('//', $item['to'], -1, PREG_SPLIT_NO_EMPTY);
                 $n = count($matches);
                 for ($i = 0; $i < $n; $i++) {
                     $c = $matches[$i];
-                    if (array_key_exists($c, $batiments))
+                    if (array_key_exists($c, $batiments)) {
                         ++$batiments[$c];
-                    else
+                    } else {
                         $batiments[$c] = 1;
+                    }
                 }
             }
         }
@@ -116,6 +163,9 @@ class Invoices extends DataObjects
         return $batiments;
     }
 
+    /**
+     * @param $keyword
+     */
     public function showInvoicesWithKeyword($keyword)
     {
         $batiments = $this->getBuildingsListFor($keyword);
@@ -125,6 +175,10 @@ class Invoices extends DataObjects
         }
     }
 
+    /**
+     * @param $keyword
+     * @param $bat
+     */
     public function showInvoicesWithKeywordByBatiment($keyword, $bat)
     {
         $this->selectAll();
@@ -133,34 +187,52 @@ class Invoices extends DataObjects
         $this->selectByKeyExt("and", "object", $pattern);
         $this->calculateImputations();
         $this->sortByDate("date");
-        if (preg_match("/copro/", $bat))
+        if (preg_match("/copro/", $bat)) {
             $imputationKey = $bat;
-        else {
-            if ($keyword === "Electricité")
+        } else {
+            if ($keyword === "Electricité") {
                 $imputationKey = "special$bat";
-            elseif ($keyword === "Ascenseur")
+            } elseif ($keyword === "Ascenseur") {
                 $imputationKey = "ascenseur$bat";
-            elseif ($keyword === "Eau") {
+            } elseif ($keyword === "Eau") {
                 $imputationKey = "special$bat";
             }
         }
         if ($keyword === "Entretien") {
             $this->sumKeys("calculatedImputations:special$bat", "calculatedImputations:escalier$bat>12");
-            $this->logger->displayData("to>10", "date>12", "value>10",
+            $this->logger->displayData(
+                "to>10",
+                "date>12",
+                "value>10",
                 "calculatedImputations:special$bat>12",
                 "calculatedImputations:escalier$bat>12",
-                "from>12", "object>20", "info>20");
-            $this->logger->displaySums("calculatedImputations:special$bat",
-                "calculatedImputations:escalier$bat>12");
+                "from>12",
+                "object>20",
+                "info>20"
+            );
+            $this->logger->displaySums(
+                "calculatedImputations:special$bat",
+                "calculatedImputations:escalier$bat>12"
+            );
         } else {
             $this->sumKeys("calculatedImputations:$imputationKey");
-            $this->logger->displayData("to>10", "date>12", "value>10",
-                "calculatedImputations:$imputationKey>12", "from>12", "object>20", "info>20");
+            $this->logger->displayData(
+                "to>10",
+                "date>12",
+                "value>10",
+                "calculatedImputations:$imputationKey>12",
+                "from>12",
+                "object>20",
+                "info>20"
+            );
             $this->logger->displaySums("calculatedImputations:$imputationKey");
         }
     }
 
 
+    /**
+     * @param AccountingPlan $accountingPlan
+     */
     public function checkWithAccountingPlan(AccountingPlan $accountingPlan)
     {
         $this->accountingPlan = $accountingPlan;
@@ -190,6 +262,11 @@ class Invoices extends DataObjects
         }
     }
 
+    /**
+     * @param $index
+     *
+     * @return mixed|null
+     */
     public function getInvoiceKeyWithIndex($index)
     {
         foreach ($this->filteredObjects as $key => $data) {
@@ -200,6 +277,9 @@ class Invoices extends DataObjects
         return null;
     }
 
+    /**
+     *
+     */
     public function displayInvoicesList()
     {
         $invoicesCount = $this->filteredCount;
@@ -217,5 +297,4 @@ class Invoices extends DataObjects
             printf("%12s\t%6d\t%10s\t%-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName);
         }
     }
-}		
-		
+}

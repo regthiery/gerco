@@ -2,24 +2,36 @@
 
 <?php
 
+/**
+ * Gestion d'une copropriété immobilière
+ *
+ * PHP version 7
+ *
+ * @category Main_Entry_Point
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @link     http://localhost
+ */
+
 use Gerco\Data\Condominium;
 
-include_once "Data/DataObject.php";
-include_once "Data/DataObjects.php";
+require_once "Data/DataObject.php";
+require_once "Data/DataObjects.php";
 
-include_once "Data/Lots.php";
-include_once "Data/Residents.php";
-include_once "Data/Owners.php";
-include_once "Data/Suppliers.php";
-include_once "Data/Invoices.php";
-include_once "Data/AccountingPlan.php";
-include_once "Data/Imputations.php";
-include_once "Data/Condominium.php";
-include_once "Data/AccountingExercises.php";
-include_once "Data/Resolutions.php";
-include_once "Data/GeneralMeetings.php";
-include_once "Logger/Logger.php";
-include_once "Logger/DataLogger.php";
+require_once "Data/Lots.php";
+require_once "Data/Residents.php";
+require_once "Data/Owners.php";
+require_once "Data/Suppliers.php";
+require_once "Data/Invoices.php";
+require_once "Data/AccountingPlan.php";
+require_once "Data/Imputations.php";
+require_once "Data/Condominium.php";
+require_once "Data/AccountingExercises.php";
+require_once "Data/Resolutions.php";
+require_once "Data/GeneralMeetings.php";
+require_once "Logger/Logger.php";
+require_once "Logger/DataLogger.php";
 
 
 setlocale(LC_ALL, 'fr_FR.UTF8', 'fr_FR', 'fr', 'fr', 'fra', 'fr_FR@euro');
@@ -41,4 +53,3 @@ if (isset($argc)) {
 
     echo "\n";
 }
-

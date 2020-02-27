@@ -1,34 +1,77 @@
 <?php
+/**
+ * Imputations.php
+ *
+ * Classe gérant les clés de répartition des charges d'une copropriété.
+ *
+ * La classe Imputations traite des clés de répartition des dépenses d'une copropriété.
+ *
+ * PHP version 7
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @version  GIT:0.1
+ * @link     http://localhost
+ */
+
 
 namespace Gerco\Data;
 
-
+/**
+ * Class Imputations
+ *
+ * @package Gerco\Data
+ */
 class Imputations extends DataObjects
 {
+    /**
+     * @var Invoices
+     */
     protected Invoices $invoices;
+    /**
+     * @var AccountingPlan
+     */
     protected AccountingPlan $accountingPlan;
 
+    /**
+     * Imputations constructor.
+     */
     public function __construct()
     {
         parent::__construct();
         $this->setPrimaryKey("code");
     }
 
+    /**
+     * @param $invoices
+     */
     public function setInvoices($invoices)
     {
         $this->invoices = $invoices;
     }
 
+    /**
+     * @param $accountingPlan
+     */
     public function setAccountingPlan($accountingPlan)
     {
         $this->accountingPlan = $accountingPlan;
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     */
     public function setAccountingYear($startDate, $endDate)
     {
         $this->invoices->selectBetweenDates("and", "dateEng", $startDate, $endDate);
     }
 
+    /**
+     * @param Owners $owners
+     */
     public function createOwnersKeys(Owners $owners)
     {
         foreach ($owners->getObjects() as $ownerKey => $ownerData) {
@@ -42,6 +85,9 @@ class Imputations extends DataObjects
         }
     }
 
+    /**
+     *
+     */
     public function makeAccountStatement()
     {
         foreach ($this->objects as $imputationKey => $imputation) {
@@ -51,7 +97,7 @@ class Imputations extends DataObjects
 
             foreach ($this->invoices->getFiltered() as $invoiceKey => $invoice) {
                 if (!array_key_exists("calculatedImputations", $invoice)) {
-                    print ("Error : the imputations have not been calculated for invoice $invoiceKey\n");
+                    print("Error : the imputations have not been calculated for invoice $invoiceKey\n");
                     return;
                 }
                 $imputations = $invoice["calculatedImputations"];
@@ -62,7 +108,6 @@ class Imputations extends DataObjects
                     $this->objects[$imputationKey]["invoices"][$invoiceKey]["accountCode"] = $accountCode;
                     //printf ("\t%-10s \t % 10.2f\t %8d\n", $invoiceKey, $imputationValue, $accountCode) ;
                 }
-
             }
             $invoices = $this->objects[$imputationKey]["invoices"];
             $accounts = array();
@@ -70,21 +115,26 @@ class Imputations extends DataObjects
                 $accountCode = $invoiceData["accountCode"];
                 $invoice = $this->invoices->getFilteredWithKey($invoiceKey);
 
-                if (!array_key_exists($accountCode, $accounts))
+                if (!array_key_exists($accountCode, $accounts)) {
                     $accounts[$accountCode] = array();
+                }
 
-                if (!array_key_exists("count", $accounts[$accountCode]))
+                if (!array_key_exists("count", $accounts[$accountCode])) {
                     $accounts[$accountCode]["count"] = 1;
-                else
+                } else {
                     $accounts[$accountCode]["count"]++;
+                }
 
-                if (!array_key_exists("invoicesKeys", $accounts[$accountCode]))
+                if (!array_key_exists("invoicesKeys", $accounts[$accountCode])) {
                     $accounts[$accountCode]["invoicesKeys"] = array();
-                if (!array_key_exists("invoicesDates", $accounts[$accountCode]))
+                }
+                if (!array_key_exists("invoicesDates", $accounts[$accountCode])) {
                     $accounts[$accountCode]["invoicesDates"] = array();
+                }
 
-                if (!array_key_exists("invoicesValues", $accounts[$accountCode]))
+                if (!array_key_exists("invoicesValues", $accounts[$accountCode])) {
                     $accounts[$accountCode]["invoicesValues"] = array();
+                }
 
                 $accounts[$accountCode]["invoicesKeys"][] = $invoiceKey;
                 $accounts[$accountCode]["invoicesDates"][] = $invoice["dateEng"];
@@ -112,6 +162,9 @@ class Imputations extends DataObjects
     }
 
 
+    /**
+     *
+     */
     public function displayAccountStatement()
     {
         foreach ($this->objects as $imputationKey => $imputation) {
@@ -131,5 +184,4 @@ class Imputations extends DataObjects
             printf("\t\t\033[1mTOTAL\t\t\t\t%12.2f €\033[0m\n", $this->objects[$imputationKey]["total"]);
         }
     }
-
 }

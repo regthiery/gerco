@@ -1,19 +1,55 @@
 <?php
+/**
+ * DataLogger.php
+ *
+ * Classe traitant de l'affichage des données d'un DataObjects
+ *
+ * La classe DataLogger permet d'afficher les données d'un objet
+ * de classe DataObjects.
+ *
+ * PHP version 7
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @version  GIT:0.1
+ * @link     http://localhost
+ */
+
 
 namespace Gerco\Logger;
 
 use Gerco\Data\DataObjects;
 
+/**
+ * Class DataLogger
+ *
+ * @package Gerco\Logger
+ */
 class DataLogger
 {
+    /**
+     * @var DataObjects
+     */
     public DataObjects $dataObjects;
 
+    /**
+     * DataLogger constructor.
+     *
+     * @param DataObjects $dataObjects
+     */
     public function __construct(DataObjects $dataObjects)
     {
         $this->dataObjects = $dataObjects;
     }
 
 
+    /**
+     * @param mixed ...$keys
+     *
+     * @return $this
+     */
     public function displayData(...$keys)
     {
         $formats = array();
@@ -57,6 +93,11 @@ class DataLogger
         return $this;
     }
 
+    /**
+     * @param mixed ...$keys
+     *
+     * @return $this
+     */
     public function displaySums(...$keys)
     {
         foreach ($keys as $key) {
@@ -66,23 +107,36 @@ class DataLogger
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function displayCount()
     {
         printf("%5d %s\n\n", $this->dataObjects->objectsCount, $this->dataObjects->primaryKey);
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function displayFilteredCount()
     {
         printf("%5d selected items\n\n", $this->dataObjects->filteredCount);
         return $this;
     }
 
+    /**
+     * @param $text
+     */
     public function print($text)
     {
         print ($text);
     }
 
+    /**
+     * @param       $format
+     * @param mixed ...$params
+     */
     public function printf($format, ...$params)
     {
         printf($format, ...$params);

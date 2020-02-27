@@ -1,76 +1,180 @@
 <?php
+/**
+ * DataObjects.php
+ *
+ * Classe encapsulant une liste de tableaux associatifs
+ *
+ * La classe DataObjects encapsule une liste de tableaux associatifs.
+ * Les données (clé => valeur) sont lues dans un fichier texte.
+ *
+ * PHP version 7
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @version  GIT:0.1
+ * @link     http://localhost
+ */
 
 namespace Gerco\Data;
 
-//include_once "Logger/DataLogger.php";
-
 use Gerco\Logger\DataLogger;
 
+/**
+ * Class DataObjects
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @link     http://localhost
+ */
 class DataObjects
 {
+    /**
+     * Nom du fichier texte
+     *
+     * @var string $filename
+     */
     public string $filename;
+    /**
+     * Tableau associatif contenant les données
+     * telles qu'elles sont lues dans le fichier
+     *
+     * @var array $objects
+     */
     public array $objects;
+    /**
+     * Tableau associatif contenant les données
+     * filtrées et triées
+     *
+     * @var array $filteredObjects
+     */
     public array $filteredObjects;
-    public array $selectedObject;
+    /**
+     * Nombre d'items dans $objects
+     *
+     * @var int $objectsCount
+     */
     public int $objectsCount;
+    /**
+     * Nombre d'items dans $filteredObjects
+     *
+     * @var int $filteredCount
+     */
     public int $filteredCount;
+    /**
+     * Nom de la clé primaire
+     *
+     * @var string $primaryKey
+     */
     public string $primaryKey;
+    /**
+     * Tableau simple stockant les sommes calculées par colonne
+     *
+     * @var array $sums
+     */
     public array $sums;
+    /**
+     * Tableau simple contenant les noms des clés
+     *
+     * @var array $objectsKeys
+     */
     public array $objectsKeys;
+    /**
+     * Utilisé pour afficher les données dans un terminal
+     *
+     * @var DataLogger $logger
+     */
     public DataLogger $logger;
 
+    /**
+     * DataObjects constructor.
+     */
     public function __construct()
     {
         $this->logger = new DataLogger($this);
     }
 
+    /**
+     * Setter function
+     *
+     * @param $primaryKey
+     * Nom de la clé primaire
+     *
+     * @return DataObjects
+     */
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
+        return $this ;
     }
 
+    /**
+     * Getter function
+     *
+     * @return array
+     */
     public function getObjects()
     {
         return $this->objects;
     }
 
+    /**
+     * Getter function
+     *
+     * @return array
+     */
     public function getFiltered()
     {
         return $this->filteredObjects;
     }
 
+    /**
+     * Retourne l'item indiquée par $key
+     *
+     * @param $key
+     * Clé utilisée pour sélectionner un item
+     *
+     * @return mixed|null
+     */
     public function getObjectWithKey($key)
     {
-        if (array_key_exists($key, $this->objects))
+        if (array_key_exists($key, $this->objects)) {
             return $this->objects[$key];
-        else {
+        } else {
             $className = get_class($this);
             echo "Key $key does not exist in $className:objects.\n";
-            return NULL;
+            return null;
         }
     }
 
-    public function selectObject($index)
-    {
-        $this->selectedObject = $this->objects[$index];
-    }
-
-    public function getSelectedObject(): array
-    {
-        return $this->selectedObject;
-    }
-
+    /**
+     * Sélectionne un item dans $filteredObjects
+     *
+     * @param $key
+     * Clé utilisée pour sélectionner l'item
+     *
+     * @return mixed|null
+     */
     public function getFilteredWithKey($key)
     {
-        if (array_key_exists($key, $this->filteredObjects))
+        if (array_key_exists($key, $this->filteredObjects)) {
             return $this->filteredObjects[$key];
-        else {
+        } else {
             $className = get_class($this);
             echo "Key $key does not exist in $className:filteredObjects.\n";
-            return NULL;
+            return null;
         }
     }
 
+    /**
+     * @param $key0
+     * @param $value0
+     *
+     * @return mixed|null
+     */
     public function getObjectWithKeyValue($key0, $value0)
     {
         foreach ($this->objects as $key => $item) {
@@ -81,30 +185,51 @@ class DataObjects
                 }
             }
         }
-        return NULL;
+        return null;
     }
 
 
+    /**
+     * Convertit une date du format français au format anglais
+     *
+     * @param $date
+     * La date à convertir
+     *
+     * @return string
+     */
     public function convertDateToEng($date): string
     {
-        @list ($day, $month, $year) = explode('/', $date);
-        $date0 = date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
-        return $date0;
+        @list($day, $month, $year) = explode('/', $date);
+        return date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
     }
 
 
+    /**
+     * Spécifie le nom du fichier texte
+     *
+     * @param $filename
+     * Nom du fichier texte
+     */
     public function setFileName($filename)
     {
         $this->filename = $filename;
     }
 
+    /**
+     * Lit les données d'un fichier texte
+     *
+     * @param $filename
+     * Nom du fichier texte
+     *
+     * @return $this
+     */
     public function readFile($filename)
     {
         $new = 0;
         $this->objects = array();
 
         $primaryLabel = ucfirst($this->primaryKey);
-        $primaryValue = NULL;
+        $primaryValue = null;
 
         $this->setFileName($filename);
         if (!file_exists($filename)) {
@@ -126,22 +251,23 @@ class DataObjects
                     if ($key === $primaryLabel) {
                         $new = 1;
                         $primaryValue = $value;
-                        $object = array
-                        ($this->primaryKey => $value);
+                        $object = array($this->primaryKey => $value);
                     } elseif (preg_match("/(.*)Array/", $line, $matches)) {
                         $key = $matches[1];
                         $key = lcfirst($key);
                         $value = preg_replace('/\s\s+/', ' ', $value);
                         $valuesArray = explode(' ', $value);
 
-                        if (count($valuesArray) > 0 && !empty($valuesArray[0]))
+                        if (count($valuesArray) > 0 && !empty($valuesArray[0])) {
                             $object[$key] = $valuesArray;
+                        }
                     } elseif (preg_match("/(.*)Date/", $line, $matches)) {
                         $key = $matches[1] . "Date";
                         $key = lcfirst($key);
                         $object[$key] = $value;
-                        @list ($day, $month, $year) = explode('/', $value);
-                        $date0 = @date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
+                        @list($day, $month, $year) = explode('/', $value);
+                        $date0
+                            = @date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
                         $object["$key" . "Eng"] = $date0;
                     } else {
                         $key = lcfirst($key);
@@ -151,7 +277,8 @@ class DataObjects
                     if (isset($primaryValue) && isset($object)) {
                         $this->objects [$primaryValue] = $object;
                     } else {
-                        print("Erreur de lecture du fichier $filename: aucune valeur définie pour la clé $primaryLabel\n");
+                        print("Erreur de lecture du fichier $filename:\\
+                         aucune valeur définie pour la clé $primaryLabel\n");
                     }
 
                     $new = 0;
@@ -170,6 +297,20 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Réalise une jointure avec un autre DataObjects
+     *
+     * @param DataObjects $dataObject
+     * Autre entité de classe DataObjects
+     *
+     * @param $primaryKey
+     * Spécifie la clé qui sera utilisée pour relier
+     * un item avec un autre item dans $dataObject
+     *
+     * @param $objectKey
+     * Nom de la clé qui sera utilisée pour copier
+     * l'autre item dans l'item courant
+     */
     public function joinWithData(DataObjects $dataObject, $primaryKey, $objectKey)
     {
         $objectsData = $dataObject->getObjects();
@@ -186,16 +327,11 @@ class DataObjects
         }
     }
 
-    public function getCount(): int
-    {
-        return $this->objectsCount;
-    }
-
-    public function getFilteredCount(): int
-    {
-        return $this->filteredCount;
-    }
-
+    /**
+     * Déselectionne tous les items
+     *
+     * @return $this
+     */
     public function unselect()
     {
         $this->filteredObjects = array();
@@ -203,6 +339,12 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Sélectionne tous les items de $objects
+     * et les stocke dans $filteredObjects
+     *
+     * @return $this
+     */
     public function selectAll()
     {
         $this->filteredObjects = $this->objects;
@@ -210,23 +352,34 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Retourne la valeur stockée dans un item pour une clé donnée
+     *
+     * @param $object
+     * Item
+     *
+     * @param $key
+     * Clé
+     *
+     * @return mixed|string|null
+     */
     public function getKeyValue($object, $key)
     {
         $keys = preg_split("/:/", $key);
         $n = count($keys);
         if ($n == 1) {
             if (!(array_key_exists($key, $object))) {
-                return NULL;
+                return null;
             }
             $value = $object[$key];
         } elseif ($n == 2) {
             $key0 = $keys [0];
             $key1 = $keys [1];
             if (!array_key_exists($key0, $object)) {
-                return NULL;
+                return null;
             }
             if (!array_key_exists($key1, $object[$key0])) {
-                return NULL;
+                return null;
             }
             $value = $object[$key0][$key1];
         } elseif ($n == 3) {
@@ -234,13 +387,13 @@ class DataObjects
             $key1 = $keys [1];
             $key2 = $keys [2];
             if (!array_key_exists($key0, $object)) {
-                return NULL;
+                return null;
             }
             if (!array_key_exists($key1, $object[$key0])) {
-                return NULL;
+                return null;
             }
             if (!array_key_exists($key2, $object[$key0][$key1])) {
-                return NULL;
+                return null;
             }
             $value = $object[$key0][$key1][$key2];
         } else {
@@ -249,6 +402,20 @@ class DataObjects
         return $value;
     }
 
+    /**
+     * Sélectionne des items dans objects et les range dans $filteredObjects
+     *
+     * @param $operator
+     * Peut être and ou or
+     *
+     * @param $key0
+     * Clé utilisée pour sélectionner un item
+     *
+     * @param $value0
+     * Valeur utilisée pour sélectionner un item
+     *
+     * @return $this
+     */
     public function selectByKey($operator, $key0, $value0)
     {
         $array = array_filter(
@@ -269,6 +436,23 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Sélectionne des items ayant une date, spécifiée par $key0
+     *
+     * @param $operator
+     * Peut être and ou or
+     *
+     * @param $key0
+     * Clé spécifiant une date
+     *
+     * @param $startDate
+     * Date de départ
+     *
+     * @param $endDate
+     * Date d'arrivée
+     *
+     * @return $this
+     */
     public function selectBetweenDates($operator, $key0, $startDate, $endDate)
     {
         $startDateEng = $this->convertDateToEng($startDate);
@@ -300,6 +484,20 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Sélectionne des items à partir d'une expression régulière
+     *
+     * @param $operator
+     * Peut être and ou or
+     *
+     * @param $key0
+     * Clé sur laquelle l'expression régulière sera appliquée
+     *
+     * @param $pattern
+     * Masque de l'expression régulière
+     *
+     * @return $this
+     */
     public function selectByKeyExt($operator, $key0, $pattern)
     {
         $array = array_filter(
@@ -307,8 +505,9 @@ class DataObjects
             function ($item) use ($key0, $pattern) {
                 $value = $this->getKeyValue($item, $key0);
 
-                if ($value == NULL)
-                    return FALSE;
+                if ($value == null) {
+                    return false;
+                }
 
                 //return ( preg_match($pattern,$value) ) ;
                 return preg_match($pattern, $value);
@@ -317,7 +516,8 @@ class DataObjects
         if (!strcmp($operator, "or")) {
             $this->filteredObjects = array_merge($this->filteredObjects, $array);
         } elseif ($operator === 'andNot') {
-            $this->filteredObjects = array_diff_assoc($this->filteredObjects, $array);
+            $this->filteredObjects
+                = array_diff_assoc($this->filteredObjects, $array);
         } else {
             $this->filteredObjects = $array;
         }
@@ -326,13 +526,25 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Sélectionne des items pour lesquelles une clé particulière est définie
+     *
+     * @param $operator
+     * Peut être and ou or
+     *
+     * @param $key0
+     * Clé utilisée
+     *
+     * @return $this
+     */
     public function selectDefinedKey($operator, $key0)
     {
         $array = array_filter(
             (!strcmp($operator, "and")) ? $this->filteredObjects : $this->objects,
             function ($item) use ($key0) {
-                if (!array_key_exists($key0, $item))
+                if (!array_key_exists($key0, $item)) {
                     return false;
+                }
                 $value = $item[$key0];
                 $checkNonEmpty = (empty($value) == false);
                 return ($checkNonEmpty);
@@ -350,9 +562,18 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Trie le tableau $filteredObjects
+     *
+     * @param $key0
+     * Clé de triage
+     *
+     * @return $this
+     */
     public function sortNumeric($key0)
     {
-        uasort($this->filteredObjects,
+        uasort(
+            $this->filteredObjects,
             function ($a, $b) use ($key0) {
                 if (!array_key_exists($key0, $a)) {
                     return -1;
@@ -372,11 +593,20 @@ class DataObjects
         return $this;
     }
 
+    /**
+     * Trie le tableau $filteredObjects
+     *
+     * @param $key0
+     * Clé de triage
+     *
+     * @return $this
+     */
     public function sortByDate($key0)
     {
-        print ("Sort by date\n");
+        print("Sort by date\n");
         $key = $key0 . "Eng";
-        uasort($this->filteredObjects,
+        uasort(
+            $this->filteredObjects,
             function ($a, $b) use ($key) {
                 if (!array_key_exists($key, $a)) {
                     return -1;
@@ -386,17 +616,27 @@ class DataObjects
                 }
                 $ta = strtotime($a[$key]);
                 $tb = strtotime($b[$key]);
-                if ($ta < $tb)
+                if ($ta < $tb) {
                     return 1;
-                else if ($ta > $tb)
+                } elseif ($ta > $tb) {
                     return -1;
-                else
+                } else {
                     return 0;
+                }
             }
         );
         return $this;
     }
 
+    /**
+     * Calcule la somme des valeurs contenues dans tous les items
+     * de filteredObjects dans les colonnes indiquées par $keys
+     *
+     * @param mixed ...$keys
+     * Clés des colonnes
+     *
+     * @return $this
+     */
     public function sumKeys(...$keys)
     {
         $this->sums = array();
@@ -405,15 +645,24 @@ class DataObjects
             $this->sums[$key0] = 0;
             foreach ($this->filteredObjects as $key => $object) {
                 $value = $this->getKeyValue($object, $key0);
-                if ($value != NULL)
+                if ($value != null) {
                     $this->sums[$key0] += $value;
+                }
             }
         }
         return $this;
     }
 
+    /**
+     * Retourne la somme des valeurs d'une colonne pour $filteredObjects
+     *
+     * @param $key0
+     * Clé de la colonne
+     *
+     * @return mixed
+     */
     public function getSum($key0)
     {
         return $this->sums[$key0];
     }
-}	
+}

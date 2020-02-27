@@ -1,18 +1,52 @@
 <?php
+/**
+ * Logger.php
+ *
+ * Classe traitant de l'affichage des données d'une entité de classe DataObject
+ *
+ * La classe Logger affiche les donnée d'un objet appartenant
+ * à une classe DataObject.
+ *
+ * PHP version 7
+ *
+ * @category Gerco
+ * @package  Gerco
+ * @author   R. Thiéry <regthiery@gmail.com>
+ * @license  https://opensource.org/licenses/MIT MIT License
+ * @version  GIT:0.1
+ * @link     http://localhost
+ */
+
 
 namespace Gerco\Logger;
 
 use Gerco\Data\DataObject;
 
+/**
+ * Class Logger
+ *
+ * @package Gerco\Logger
+ */
 class Logger
 {
+    /**
+     * @var DataObject
+     */
     public DataObject $object;
 
+    /**
+     * Logger constructor.
+     *
+     * @param DataObject $dataObject
+     */
     public function __construct(DataObject $dataObject)
     {
         $this->object = $dataObject;
     }
 
+    /**
+     * @param mixed ...$keys
+     */
     public function displayData(...$keys)
     {
         $formats = array();
@@ -49,11 +83,18 @@ class Logger
         printf("\n");
     }
 
+    /**
+     * @param $text
+     */
     public function print($text)
     {
         print ($text);
     }
 
+    /**
+     * @param $format
+     * @param mixed ...$params
+     */
     public function printf($format, ...$params)
     {
         printf($format, ...$params);
