@@ -20,6 +20,8 @@
 namespace Gerco\Data;
 
 use Gerco\Logger\Logger;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class DataObject
@@ -47,7 +49,7 @@ class DataObject
     /**
      * Setter function
      *
-     * @param $filename
+     * @param string $filename
      *     Fichier texte à lire
      *
      * @return $this
@@ -55,6 +57,18 @@ class DataObject
     public function setFileName($filename)
     {
         $this->filename = $filename;
+        return $this ;
+    }
+
+    final public function readYamlFile (string $filename) : DataObject
+    {
+        try {
+            $this->data = Yaml::parseFile($filename) ;
+        } catch (ParseException $exception) {
+            printf("Unable to parse the YAML file %s: %s\n",
+            $filename, $exception->getMessage()) ;
+        }
+
         return $this ;
     }
 
@@ -122,17 +136,4 @@ class DataObject
         return $this;
     }
 
-    /**
-     * Convertit une date du format français DD/MM/YYYY au format anglais YYYY-MM-DD
-     *
-     * @param string $date
-     *   date à convertir
-     *
-     * @return string
-     */
-    public function convertDateToEng(string $date): string
-    {
-        @list($day, $month, $year) = explode('/', $date);
-        return date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
-    }
 }

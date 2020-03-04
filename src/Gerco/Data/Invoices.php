@@ -124,7 +124,7 @@ class Invoices extends DataObjects
     public function showInvoices()
     {
         $this->selectAll();
-        $this->logger->displayData("to>10", "date>12", "value>12", "from>20", "object>25", "imputations>25", "info");
+        $this->logger->displayData("to>10", "date>12", "value>12", "from>20", "object>25", "imputations>8", "info");
     }
 
     /**
@@ -284,7 +284,7 @@ class Invoices extends DataObjects
     {
         $invoicesCount = $this->filteredCount;
 
-
+/*
         for ($i = 0; $i < $invoicesCount; $i++) {
             $invoiceIndex = $i + 1;
             $invoiceKey = $this->getInvoiceKeyWithIndex($invoiceIndex);
@@ -296,5 +296,7 @@ class Invoices extends DataObjects
             $invoiceShortName = $invoice["object"];
             printf("%12s\t%6d\t%10s\t%-32s \t %-50s\n", $date, $invoiceIndex, $accountCode, $from, $invoiceShortName);
         }
+*/
+    $this->logger->displayData("date>12","index>8","accountCode>10","from>20","object>15") ;
     }
 }

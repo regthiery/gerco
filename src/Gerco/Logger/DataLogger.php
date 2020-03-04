@@ -77,9 +77,15 @@ class DataLogger
             foreach ($keys0 as $key0) {
                 $value = $this->dataObjects->getKeyValue($item, $key0);
 
-                if (is_array($value)) {
-                    $values = implode('    ', $value);
-                    printf($formats[$k], $values);
+                if ( preg_match("/[D|d]ate$/", $key0)) {
+                    $value = date('d/m/Y',$value) ;
+                    printf($formats[$k], $value);
+                }
+                elseif (is_array($value)) {
+                    // $values = implode('    ', $value);
+                    foreach ($value as $key1 => $value1 )
+                        printf("%8s".$formats[$k], $key1, $value1) ;
+                    //printf($formats[$k], $values);
                 } else {
                     printf($formats[$k], $value);
                 }

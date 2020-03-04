@@ -70,7 +70,11 @@ class Logger
             $value = (array_key_exists($key0, $this->object->data)) ?
                 $this->object->data[$key0] : "";
 
-            if (is_array($value)) {
+            if ( preg_match("/Date$/", $key0)) {
+                $value = date('d/m/Y',$value) ;
+                printf($formats[$k], $value);
+            }
+            elseif (is_array($value)) {
                 $values = implode('    ', $value);
                 printf($formats[$k], $values);
             } else {

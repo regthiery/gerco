@@ -37,9 +37,11 @@ class Owners extends DataObjects
     }
 
     /**
-     * @param $batiment
+     * Affiche la liste des copropriétaires dans un bâtiment
+     *
+     * @param string $batiment
      */
-    public function show($batiment)
+    public function show(string $batiment)
     {
         $this->unselect();
         $this->selectByKey("or", "lotData:batiment", $batiment);
@@ -55,6 +57,7 @@ class Owners extends DataObjects
     }
 
     /**
+     * Affiche la liste de tous les copropriétaires de la copropriété
      *
      */
     public function showOwners()
@@ -76,7 +79,7 @@ class Owners extends DataObjects
     }
 
     /**
-     *
+     * Affiche la liste des copropriétaires triée par le numéro de code du syndic
      */
     public function showSortedBySyndicCode()
     {

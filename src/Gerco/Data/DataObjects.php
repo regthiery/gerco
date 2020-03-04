@@ -20,6 +20,7 @@
 namespace Gerco\Data;
 
 use Gerco\Logger\DataLogger;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class DataObjects
@@ -35,57 +36,65 @@ class DataObjects
     /**
      * Nom du fichier texte
      *
-     * @var string $filename
+     * @var string
      */
     public string $filename;
+
     /**
      * Tableau associatif contenant les données
      * telles qu'elles sont lues dans le fichier
      *
-     * @var array $objects
+     * @var array
      */
     public array $objects;
+
     /**
      * Tableau associatif contenant les données
      * filtrées et triées
      *
-     * @var array $filteredObjects
+     * @var array
      */
     public array $filteredObjects;
+
     /**
      * Nombre d'items dans $objects
      *
-     * @var int $objectsCount
+     * @var int
      */
     public int $objectsCount;
+
     /**
      * Nombre d'items dans $filteredObjects
      *
-     * @var int $filteredCount
+     * @var int
      */
     public int $filteredCount;
+
     /**
      * Nom de la clé primaire
      *
-     * @var string $primaryKey
+     * @var string
      */
     public string $primaryKey;
+
     /**
      * Tableau simple stockant les sommes calculées par colonne
      *
-     * @var array $sums
+     * @var array
      */
     public array $sums;
+
     /**
      * Tableau simple contenant les noms des clés
      *
-     * @var array $objectsKeys
+     * @var array
      */
     public array $objectsKeys;
+
     /**
      * Utilisé pour afficher les données dans un terminal
      *
-     * @var DataLogger $logger
+     * @var DataLogger
      */
     public DataLogger $logger;
 
@@ -100,12 +109,11 @@ class DataObjects
     /**
      * Setter function
      *
-     * @param $primaryKey
-     * Nom de la clé primaire
+     * @param string $primaryKey Nom de la clé primaire
      *
      * @return DataObjects
      */
-    public function setPrimaryKey($primaryKey)
+    final public function setPrimaryKey(string $primaryKey) : DataObjects
     {
         $this->primaryKey = $primaryKey;
         return $this ;
@@ -116,7 +124,7 @@ class DataObjects
      *
      * @return array
      */
-    public function getObjects()
+    final public function getObjects() : array
     {
         return $this->objects;
     }
@@ -126,7 +134,7 @@ class DataObjects
      *
      * @return array
      */
-    public function getFiltered()
+    final public function getFiltered() : array
     {
         return $this->filteredObjects;
     }
@@ -134,18 +142,17 @@ class DataObjects
     /**
      * Retourne l'item indiquée par $key
      *
-     * @param $key
-     * Clé utilisée pour sélectionner un item
+     * @param string $key Clé utilisée pour sélectionner un item
      *
      * @return mixed|null
      */
-    public function getObjectWithKey($key)
+    final public function getObjectWithKey(string $key) : ?array
     {
         if (array_key_exists($key, $this->objects)) {
             return $this->objects[$key];
         } else {
             $className = get_class($this);
-            echo "Key $key does not exist in $className:objects.\n";
+            throw new \Error("Key $key does not exist in $className objects.") ;
             return null;
         }
     }
@@ -153,29 +160,30 @@ class DataObjects
     /**
      * Sélectionne un item dans $filteredObjects
      *
-     * @param $key
-     * Clé utilisée pour sélectionner l'item
+     * @param string $key Clé utilisée pour sélectionner l'item
      *
      * @return mixed|null
      */
-    public function getFilteredWithKey($key)
+    final public function getFilteredWithKey(string $key) : ?array
     {
         if (array_key_exists($key, $this->filteredObjects)) {
             return $this->filteredObjects[$key];
         } else {
             $className = get_class($this);
-            echo "Key $key does not exist in $className:filteredObjects.\n";
+            throw new \Error ("Key $key does not exist in $className:filteredObjects.") ;
             return null;
         }
     }
 
     /**
-     * @param $key0
-     * @param $value0
+     * Récupère l'item identifié par sa valeur $value0 pour la clé $key0
+     *
+     * @param string $key0   la clé
+     * @param string $value0 la valeur correspondante recherchée
      *
      * @return mixed|null
      */
-    public function getObjectWithKeyValue($key0, $value0)
+    final public function getObjectWithKeyValue(string $key0, string $value0) : array
     {
         foreach ($this->objects as $key => $item) {
             if (array_key_exists($key0, $item)) {
@@ -190,40 +198,41 @@ class DataObjects
 
 
     /**
-     * Convertit une date du format français au format anglais
-     *
-     * @param $date
-     * La date à convertir
-     *
-     * @return string
-     */
-    public function convertDateToEng($date): string
-    {
-        @list($day, $month, $year) = explode('/', $date);
-        return date('Y-m-d', mktime(0, 0, 0, $month, $day, $year));
-    }
-
-
-    /**
      * Spécifie le nom du fichier texte
      *
-     * @param $filename
-     * Nom du fichier texte
+     * @param string $filename Nom du fichier texte
+     *                       
+     * @return DataObjects
      */
-    public function setFileName($filename)
+    final public function setFileName(string $filename) : DataObjects
     {
         $this->filename = $filename;
+        return $this ;
+    }
+
+    final public function readYamlFile (string $filename) : DataObjects
+    {
+        $this->objects = Yaml::parseFile($filename) ;
+        $this->filteredObjects = $this->objects;
+        $this->objectsCount = count($this->objects);
+        $this->filteredCount = $this->objectsCount;
+
+        $this->objectsKeys = array_keys($this->objects);
+
+        $this->logger->printf("Read file %s\n", $filename);
+        $this->logger->displayCount();
+
+        return $this ;
     }
 
     /**
      * Lit les données d'un fichier texte
      *
-     * @param $filename
-     * Nom du fichier texte
+     * @param string $filename Nom du fichier texte
      *
      * @return $this
      */
-    public function readFile($filename)
+    final public function readFile(string $filename) : DataObjects
     {
         $new = 0;
         $this->objects = array();
@@ -300,19 +309,20 @@ class DataObjects
     /**
      * Réalise une jointure avec un autre DataObjects
      *
-     * @param DataObjects $dataObject
-     * Autre entité de classe DataObjects
+     * @param DataObjects $dataObject L'autre entité DataObjects
+     *                                avec laquelle on fait une jointure
+     * @param string      $primaryKey Spécifie la clé qui sera utilisée pour
+     *                                relier un item avec un autre item dans
+     *                                $dataObject
+     * @param string      $objectKey  Nom de la clé qui sera
+     *                                utilisée pour copier l'autre
+     *                                item dans l'item courant
      *
-     * @param $primaryKey
-     * Spécifie la clé qui sera utilisée pour relier
-     * un item avec un autre item dans $dataObject
-     *
-     * @param $objectKey
-     * Nom de la clé qui sera utilisée pour copier
-     * l'autre item dans l'item courant
+     * @return DataObjects
      */
-    public function joinWithData(DataObjects $dataObject, $primaryKey, $objectKey)
-    {
+    final public function joinWithData(DataObjects $dataObject, string $primaryKey,
+        string $objectKey
+    ) : DataObjects {
         $objectsData = $dataObject->getObjects();
 
         foreach ($this->objects as $key => $item) {
@@ -325,6 +335,7 @@ class DataObjects
                 }
             }
         }
+        return $this ;
     }
 
     /**
@@ -332,7 +343,7 @@ class DataObjects
      *
      * @return $this
      */
-    public function unselect()
+    final public function unselect() : DataObjects
     {
         $this->filteredObjects = array();
         $this->filteredCount = 0;
@@ -343,9 +354,9 @@ class DataObjects
      * Sélectionne tous les items de $objects
      * et les stocke dans $filteredObjects
      *
-     * @return $this
+     * @return DataObjects
      */
-    public function selectAll()
+    final public function selectAll() : DataObjects
     {
         $this->filteredObjects = $this->objects;
         $this->filteredCount = $this->objectsCount;
@@ -355,15 +366,12 @@ class DataObjects
     /**
      * Retourne la valeur stockée dans un item pour une clé donnée
      *
-     * @param $object
-     * Item
-     *
-     * @param $key
-     * Clé
+     * @param array  $object Item
+     * @param string $key    Clé dans Item
      *
      * @return mixed|string|null
      */
-    public function getKeyValue($object, $key)
+    final public function getKeyValue(array $object, string $key)
     {
         $keys = preg_split("/:/", $key);
         $n = count($keys);
@@ -405,18 +413,14 @@ class DataObjects
     /**
      * Sélectionne des items dans objects et les range dans $filteredObjects
      *
-     * @param $operator
-     * Peut être and ou or
-     *
-     * @param $key0
-     * Clé utilisée pour sélectionner un item
-     *
-     * @param $value0
-     * Valeur utilisée pour sélectionner un item
+     * @param string $operator Peut être and ou or
+     * @param string $key0     Clé utilisée pour sélectionner un item
+     * @param string $value0   Valeur utilisée pour sélectionner un item
      *
      * @return $this
      */
-    public function selectByKey($operator, $key0, $value0)
+    final public function selectByKey(string $operator, string $key0, string $value0)
+        : DataObjects
     {
         $array = array_filter(
             (!strcmp($operator, "and")) ? $this->filteredObjects : $this->objects,
@@ -439,35 +443,28 @@ class DataObjects
     /**
      * Sélectionne des items ayant une date, spécifiée par $key0
      *
-     * @param $operator
-     * Peut être and ou or
-     *
-     * @param $key0
-     * Clé spécifiant une date
-     *
-     * @param $startDate
-     * Date de départ
-     *
-     * @param $endDate
-     * Date d'arrivée
+     * @param string $operator  Peut être and ou or
+     * @param string $key0      Clé spécifiant une date
+     * @param string $startDate Date de départ
+     * @param string $endDate   Date d'arrivée
      *
      * @return $this
      */
-    public function selectBetweenDates($operator, $key0, $startDate, $endDate)
-    {
-        $startDateEng = $this->convertDateToEng($startDate);
-        $endDateEng = $this->convertDateToEng($endDate);
+    final public function selectBetweenDates(string $operator, string $key0,
+        string $startDate, string $endDate
+    ) : DataObjects {
+        $startDate = strtotime($startDate) ;
+        $endDate = strtotime($endDate) ;
+
         $array = array_filter(
             (!strcmp($operator, "and")) ? $this->filteredObjects : $this->objects,
-            function ($item) use ($key0, $startDateEng, $endDateEng) {
-                $value = $this->getKeyValue($item, $key0 . "Eng");
+            function ($item) use ($key0, $startDate, $endDate) {
+                $value = $this->getKeyValue($item, $key0 );
 
-                $res = strcmp($startDateEng, $value);
-                if ($res > 0) {
+                if ($startDate > $value) {
                     return false;
                 }
-                $res = strcmp($endDateEng, $value);
-                if ($res < 0) {
+                if ($endDate < $value) {
                     return false;
                 }
 
@@ -487,19 +484,17 @@ class DataObjects
     /**
      * Sélectionne des items à partir d'une expression régulière
      *
-     * @param $operator
-     * Peut être and ou or
+     * @param string $operator Peut être and ou or
+     * @param string $key0     Clé sur laquelle l'expression régulière sera
+     *                         appliquée
+     * @param string $pattern  Masque de l'expression
+     *                         régulière
      *
-     * @param $key0
-     * Clé sur laquelle l'expression régulière sera appliquée
-     *
-     * @param $pattern
-     * Masque de l'expression régulière
-     *
-     * @return $this
+     * @return DataObjects
      */
-    public function selectByKeyExt($operator, $key0, $pattern)
-    {
+    final public function selectByKeyExt(string $operator, string $key0,
+        string $pattern
+    ) : DataObjects {
         $array = array_filter(
             (!strcmp($operator, "and")) ? $this->filteredObjects : $this->objects,
             function ($item) use ($key0, $pattern) {
@@ -517,7 +512,7 @@ class DataObjects
             $this->filteredObjects = array_merge($this->filteredObjects, $array);
         } elseif ($operator === 'andNot') {
             $this->filteredObjects
-                = array_diff_assoc($this->filteredObjects, $array);
+                = array_diff_key($this->filteredObjects, $array);
         } else {
             $this->filteredObjects = $array;
         }
@@ -529,15 +524,14 @@ class DataObjects
     /**
      * Sélectionne des items pour lesquelles une clé particulière est définie
      *
-     * @param $operator
-     * Peut être and ou or
+     * @param string $operator Peut être and ou or
+     * @param string $key0     Clé
+     *                         utilisée
      *
-     * @param $key0
-     * Clé utilisée
-     *
-     * @return $this
+     * @return DataObjects
      */
-    public function selectDefinedKey($operator, $key0)
+    final public function selectDefinedKey(string $operator, string $key0)
+        : DataObjects
     {
         $array = array_filter(
             (!strcmp($operator, "and")) ? $this->filteredObjects : $this->objects,
@@ -565,12 +559,11 @@ class DataObjects
     /**
      * Trie le tableau $filteredObjects
      *
-     * @param $key0
-     * Clé de triage
+     * @param string $key0 La clé de triage
      *
-     * @return $this
+     * @return DataObjects
      */
-    public function sortNumeric($key0)
+    final public function sortNumeric(string $key0) : DataObjects
     {
         uasort(
             $this->filteredObjects,
@@ -596,15 +589,14 @@ class DataObjects
     /**
      * Trie le tableau $filteredObjects
      *
-     * @param $key0
-     * Clé de triage
+     * @param string $key0 La clé de triage
      *
-     * @return $this
+     * @return DataObjects
      */
-    public function sortByDate($key0)
+    final public function sortByDate(string $key0) : DataObjects
     {
         print("Sort by date\n");
-        $key = $key0 . "Eng";
+        $key = $key0 ;
         uasort(
             $this->filteredObjects,
             function ($a, $b) use ($key) {
@@ -614,11 +606,9 @@ class DataObjects
                 if (!array_key_exists($key, $b)) {
                     return 1;
                 }
-                $ta = strtotime($a[$key]);
-                $tb = strtotime($b[$key]);
-                if ($ta < $tb) {
+                if ($a[$key] < $b[$key]) {
                     return 1;
-                } elseif ($ta > $tb) {
+                } elseif ($a[$key] > $b[$key]) {
                     return -1;
                 } else {
                     return 0;
@@ -632,12 +622,11 @@ class DataObjects
      * Calcule la somme des valeurs contenues dans tous les items
      * de filteredObjects dans les colonnes indiquées par $keys
      *
-     * @param mixed ...$keys
-     * Clés des colonnes
+     * @param mixed ...$keys Clés des colonnes
      *
-     * @return $this
+     * @return DataObjects
      */
-    public function sumKeys(...$keys)
+    final public function sumKeys(...$keys) : DataObjects
     {
         $this->sums = array();
 
@@ -656,12 +645,11 @@ class DataObjects
     /**
      * Retourne la somme des valeurs d'une colonne pour $filteredObjects
      *
-     * @param $key0
-     * Clé de la colonne
+     * @param string $key0 Clé de la colonne
      *
-     * @return mixed
+     * @return array
      */
-    public function getSum($key0)
+    final public function getSum(string $key0) : array
     {
         return $this->sums[$key0];
     }

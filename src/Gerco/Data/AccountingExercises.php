@@ -62,9 +62,9 @@ class AccountingExercises extends DataObjects
     /**
      * Setter function pour $imputations
      *
-     * @param $imputations
+     * @param Imputations $imputations
      */
-    public function setImputations($imputations)
+    public function setImputations(Imputations $imputations)
     {
         $this->imputations = $imputations;
     }
@@ -88,16 +88,13 @@ class AccountingExercises extends DataObjects
                 }
                 $label = $this->accountingPlan->getObjectWithKey($accountKey)["label"];
 
-                $item = preg_replace('/\s\s+/', ' ', $item);
-                $imputationsArray = explode(' ', $item);
+                //$item = preg_replace('/\s\s+/', ' ', $item);
+                // $imputationsArray = explode(' ', $item);
+                $imputationsArray = $item ;
 
                 $imputations = array();
-                foreach ($imputationsArray as $key0 => $data) {
-                    if (preg_match('/(.*)=>(.*)/', $data, $s)) {
-                        $imputationName = $s[1];
-                        $imputationValue = $s[2];
+                foreach ($imputationsArray as $imputationName => $imputationValue) {
                         $imputations[$imputationName] = $imputationValue;
-                    }
                 }
 
                 $accounts[$accountKey] = array(

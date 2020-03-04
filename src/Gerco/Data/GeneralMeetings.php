@@ -95,7 +95,7 @@ class GeneralMeetings extends DataObjects
         $this->meetingIndex = $index;
         $this->meeting = $this->getObjectWithKey($this->meetingIndex);
         $filename = $this->meeting["resolutionsFileName"];
-        $this->resolutions->readFile("../00-data/$filename");
+        $this->resolutions->readYamlFile("$filename");
     }
 
     /**

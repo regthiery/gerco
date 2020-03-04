@@ -66,7 +66,7 @@ class Imputations extends DataObjects
      */
     public function setAccountingYear($startDate, $endDate)
     {
-        $this->invoices->selectBetweenDates("and", "dateEng", $startDate, $endDate);
+        $this->invoices->selectBetweenDates("and", "date", $startDate, $endDate);
     }
 
     /**
@@ -137,7 +137,7 @@ class Imputations extends DataObjects
                 }
 
                 $accounts[$accountCode]["invoicesKeys"][] = $invoiceKey;
-                $accounts[$accountCode]["invoicesDates"][] = $invoice["dateEng"];
+                $accounts[$accountCode]["invoicesDates"][] = $invoice["date"];
                 $accounts[$accountCode]["invoicesValues"][] = $invoice["calculatedImputations"][$imputationKey];
             }
 

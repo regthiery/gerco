@@ -80,31 +80,34 @@ class Condominium extends DataObject
     public function build()
     {
         $this->lots = new Lots();
-        $this->lots->readFile($this->data['lotsPathName']);
+        $this->lots->readYamlFile($this->data['lotsPathName']);
 
         $this->residents = new Residents();
-        $this->residents->readFile($this->data['residentsPathName']);
+        $this->residents->readYamlFile($this->data['residentsPathName']);
 
         $this->owners = new Owners();
-        $this->owners->readFile($this->data['ownersPathName']);
+        $t0 = microtime(true);
+        $this->owners->readYamlFile($this->data['ownersPathName']) ;
+        $t1 = microtime(true);
+        printf("\nTIME %f\n",($t1-$t0)*1e6);
 
         $this->suppliers = new Suppliers();
-        $this->suppliers->readFile($this->data['suppliersPathName']);
+        $this->suppliers->readYamlFile($this->data['suppliersPathName']);
 
         $this->invoices = new Invoices();
-        $this->invoices->readFile($this->data['invoicesPathName']);
+        $this->invoices->readYamlFile($this->data['invoicesPathName']);
 
         $this->accountingPlan = new AccountingPlan();
-        $this->accountingPlan->readFile($this->data['accountingPlanPathName']);
+        $this->accountingPlan->readYamlFile($this->data['accountingPlanPathName']);
 
         $this->imputations = new Imputations();
-        $this->imputations->readFile($this->data['imputationsPathName']);
+        $this->imputations->readYamlFile($this->data['imputationsPathName']);
 
         $this->accountingExercises = new AccountingExercises();
-        $this->accountingExercises->readFile($this->data['accountingExercisesPathName']);
+        $this->accountingExercises->readYamlFile($this->data['accountingExercisesPathName']);
 
-        $this->generalMeetings = new generalMeetings();
-        $this->generalMeetings->readFile($this->data['generalMeetingsPathName']);
+        $this->generalMeetings = new GeneralMeetings();
+        $this->generalMeetings->readYamlFile($this->data['generalMeetingsPathName']);
 
         $this->lots->setImputations($this->imputations);
 
@@ -137,23 +140,24 @@ class Condominium extends DataObject
      */
     public function getAccountingYearDates($year0) : array
     {
-        if (! array_key_exists($year0, $this->data['accountingYear'])) {
-            $this->logger
-                ->print("Erreur: l'exercice comptable $year0 n'est pas défini.\n");
+        if ( !isset($this->data['accountingYear'])) {
+            throw new \Error ("accountingYear is not defined") ;
         }
+        if (! array_key_exists($year0, $this->data['accountingYear'])) {
+            $msg = sprintf("Erreur: l'exercice comptable $year0 n'est pas défini.\n");
+            throw new \Exception($msg) ;
+        }
+
         $year = $this->data['accountingYear'][$year0] ;
         if (preg_match("/(\d{4})-(\d{4})/", $year, $matches)) {
             $year1 = $matches[1] ;
             $year2 = $matches[2] ;
         } else {
-            $this->logger
-                ->print("Erreur: l'année de l'exercice comptable n'est pas défini.\n");
-            return null ;
+            $msg = sprint("Erreur: l'année de l'exercice comptable n'est pas défini.\n");
+            throw new \Exception($msg) ;
         }
-        $startDate = $this->data['startDate'].'/'.$year1 ;
-        //$startDate = $this->convertDateToEng($startDate) ;
-        $endDate = $this->data['endDate'].'/'.$year2 ;
-        //$endDate = $this->convertDateToEng($endDate) ;
+        $startDate = $year1.'-'.$this->data['startDate'] ;
+        $endDate = $year2.'-'.$this->data['endDate'] ;
 
         return array($startDate,$endDate) ;
     }
